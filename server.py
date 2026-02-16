@@ -21,9 +21,15 @@ def get_games():
         return jsonify([])
 
     # List all .txt files in descriptions
-    files = glob.glob(os.path.join(desc_path, '*.txt'))
+    # Prioritize markdown files, then txt
+    files = glob.glob(os.path.join(desc_path, '*.md')) + glob.glob(os.path.join(desc_path, '*.txt'))
+    seen_ids = set()
+
     for f in files:
         game_id = os.path.splitext(os.path.basename(f))[0]
+        if game_id in seen_ids:
+            continue
+        seen_ids.add(game_id)
         
         # Read Description
         with open(f, 'r') as df:
@@ -54,9 +60,13 @@ def visualize():
     try:
         # Execute the code to get the 'game' object
         local_scope = {}
-        exec(code, {}, local_scope)
+        # Inject gbt into globals to support code that assumes 'import pygambit as gbt' or uses gbt directly
+        exec(code, {'gbt': gbt}, local_scope)
         game = local_scope.get('game')
         
+        if game is None:
+            game = local_scope.get('g')
+
         if not isinstance(game, gbt.Game):
             return jsonify({"error": "Code did not produce a 'game' variable of type pygambit.Game"}), 400
 
