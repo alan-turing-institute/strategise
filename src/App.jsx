@@ -15,116 +15,6 @@ import {
 
 // --- Mock Data & Constants ---
 
-const PRESET_GAMES = [
-  {
-    id: 'pd',
-    name: "Prisoner's Dilemma",
-    description: "Two members of a criminal gang are arrested and imprisoned. Each prisoner is in solitary confinement with no means of communicating with the other. The prosecutors lack sufficient evidence to convict the pair on the principal charge, but they have enough to convict both on a lesser charge. Simultaneously, the prosecutors offer each prisoner a bargain.",
-    mockCode: `import pygambit as g
-import numpy as np
-
-# Create a new game table for 2 players with 2 strategies each
-game = g.Game.new_table([2, 2])
-game.title = "Prisoner's Dilemma"
-
-# Label players
-game.players[0].label = "Alice"
-game.players[1].label = "Bob"
-
-# Label strategies
-game.players[0].strategies[0].label = "Cooperate"
-game.players[0].strategies[1].label = "Defect"
-game.players[1].strategies[0].label = "Cooperate"
-game.players[1].strategies[1].label = "Defect"
-
-# Set payoffs (Player 1, Player 2)
-# R=Reward, P=Punishment, S=Sucker, T=Temptation
-# R=3, P=1, S=0, T=5
-game[0, 0][0] = 3  # R
-game[0, 0][1] = 3  # R
-game[0, 1][0] = 0  # S
-game[0, 1][1] = 5  # T
-game[1, 0][0] = 5  # T
-game[1, 0][1] = 0  # S
-game[1, 1][0] = 1  # P
-game[1, 1][1] = 1  # P`,
-    nashOutput: `NE 1: (Defect, Defect) | Payoff: (1.0, 1.0)`
-  },
-  {
-    id: 'bos',
-    name: "Battle of the Sexes",
-    description: "A couple wants to meet this evening. One prefers the opera, the other prefers a football match. They would rather be together at a disfavored event than apart at their favored event.",
-    mockCode: `import pygambit as g
-
-game = g.Game.new_table([2, 2])
-game.title = "Battle of the Sexes"
-
-game.players[0].label = "Husband"
-game.players[1].label = "Wife"
-
-# Strategies
-ops = ["Opera", "Football"]
-for p in game.players:
-    for i, s in enumerate(p.strategies):
-        s.label = ops[i]
-
-# Payoffs
-# (Opera, Opera) -> (3, 2)
-game[0, 0][0] = 3
-game[0, 0][1] = 2
-
-# (Opera, Football) -> (0, 0)
-game[0, 1][0] = 0
-game[0, 1][1] = 0
-
-# (Football, Opera) -> (0, 0)
-game[1, 0][0] = 0
-game[1, 0][1] = 0
-
-# (Football, Football) -> (2, 3)
-game[1, 1][0] = 2
-game[1, 1][1] = 3`,
-    nashOutput: `NE 1: (Opera, Opera) | Payoff: (3.0, 2.0)\nNE 2: (Football, Football) | Payoff: (2.0, 3.0)\nNE 3: Mixed Strategy (0.6, 0.4) | Payoff: (1.2, 1.2)`
-  },
-  {
-    id: 'hawk_dove',
-    name: "Hawk-Dove Game",
-    description: "Two animals contest a resource. They can behave like a Hawk (aggressive) or a Dove (peaceful). If both are Doves, they share. If both are Hawks, they fight and get injured. If one is Hawk and one Dove, the Hawk takes all.",
-    mockCode: `import pygambit as g
-
-# V = Value of resource (2)
-# C = Cost of injury (10)
-game = g.Game.new_table([2, 2])
-game.title = "Hawk-Dove"
-
-game.players[0].label = "Animal A"
-game.players[1].label = "Animal B"
-
-strats = ["Hawk", "Dove"]
-for p in game.players:
-    for i, s in enumerate(p.strategies):
-        s.label = strats[i]
-
-# Payoffs calculated based on V=2, C=10
-# H, H -> (V-C)/2, (V-C)/2 -> -4, -4
-game[0, 0][0] = -4
-game[0, 0][1] = -4
-
-# H, D -> V, 0 -> 2, 0
-game[0, 1][0] = 2
-game[0, 1][1] = 0
-
-# D, H -> 0, V -> 0, 2
-game[1, 0][0] = 0
-game[1, 0][1] = 2
-
-# D, D -> V/2, V/2 -> 1, 1
-game[1, 1][0] = 1
-game[1, 1][1] = 1`,
-    nashOutput: `NE 1: (Hawk, Dove) | Payoff: (2.0, 0.0)\nNE 2: (Dove, Hawk) | Payoff: (0.0, 2.0)\nNE 3: Mixed Strategy (0.5, 0.5)`
-  }
-];
-
 // --- Components ---
 
 const Header = () => (
@@ -189,96 +79,71 @@ const CodeWindow = ({ code, isGenerating }) => (
 );
 
 // A simple tree visualizer mockup using SVG
-const GameTreeVisualizer = ({ gameId, show }) => {
+const GameTreeVisualizer = ({ svgContent, show, isLoading }) => {
   if (!show) return (
     <div className="flex flex-col items-center justify-center h-full text-slate-400 bg-slate-50/50">
        <p className="text-sm">Click "Visualize Game Tree" to render</p>
     </div>
   );
 
-  // Simple hardcoded SVG structures for the demo
-  const renderTree = () => {
-    return (
-      <svg viewBox="0 0 400 300" className="w-full h-full">
-        <defs>
-           <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-             <path d="M0,0 L0,6 L9,3 z" fill="#94a3b8" />
-           </marker>
-        </defs>
-        
-        {/* Root */}
-        <circle cx="200" cy="40" r="15" fill="#3b82f6" className="stroke-blue-600 stroke-2" />
-        <text x="200" y="20" textAnchor="middle" className="text-xs fill-slate-500 font-mono">P1</text>
-        
-        {/* Branches L1 */}
-        <line x1="200" y1="55" x2="100" y2="120" stroke="#94a3b8" strokeWidth="2" />
-        <line x1="200" y1="55" x2="300" y2="120" stroke="#94a3b8" strokeWidth="2" />
-        
-        <text x="130" y="80" textAnchor="end" className="text-xs fill-slate-500 font-sans bg-white">Choice A</text>
-        <text x="270" y="80" textAnchor="start" className="text-xs fill-slate-500 font-sans">Choice B</text>
-
-        {/* Nodes L2 */}
-        <circle cx="100" cy="120" r="12" fill="#ef4444" className="stroke-red-600 stroke-2" />
-        <circle cx="300" cy="120" r="12" fill="#ef4444" className="stroke-red-600 stroke-2" />
-        <text x="80" y="125" textAnchor="end" className="text-xs fill-slate-500 font-mono">P2</text>
-        <text x="320" y="125" textAnchor="start" className="text-xs fill-slate-500 font-mono">P2</text>
-
-        {/* Branches L2 */}
-        {/* Left Subtree */}
-        <line x1="100" y1="132" x2="50" y2="220" stroke="#cbd5e1" strokeWidth="2" strokeDasharray="4" markerEnd="url(#arrow)" />
-        <line x1="100" y1="132" x2="150" y2="220" stroke="#cbd5e1" strokeWidth="2" strokeDasharray="4" markerEnd="url(#arrow)" />
-        
-        {/* Right Subtree */}
-        <line x1="300" y1="132" x2="250" y2="220" stroke="#cbd5e1" strokeWidth="2" strokeDasharray="4" markerEnd="url(#arrow)" />
-        <line x1="300" y1="132" x2="350" y2="220" stroke="#cbd5e1" strokeWidth="2" strokeDasharray="4" markerEnd="url(#arrow)" />
-
-        {/* Payoffs */}
-        <rect x="30" y="220" width="40" height="25" rx="4" fill="#f1f5f9" stroke="#e2e8f0" />
-        <text x="50" y="237" textAnchor="middle" className="text-[10px] font-mono fill-slate-700">3,3</text>
-
-        <rect x="130" y="220" width="40" height="25" rx="4" fill="#f1f5f9" stroke="#e2e8f0" />
-        <text x="150" y="237" textAnchor="middle" className="text-[10px] font-mono fill-slate-700">0,5</text>
-
-        <rect x="230" y="220" width="40" height="25" rx="4" fill="#f1f5f9" stroke="#e2e8f0" />
-        <text x="250" y="237" textAnchor="middle" className="text-[10px] font-mono fill-slate-700">5,0</text>
-
-        <rect x="330" y="220" width="40" height="25" rx="4" fill="#f1f5f9" stroke="#e2e8f0" />
-        <text x="350" y="237" textAnchor="middle" className="text-[10px] font-mono fill-slate-700">1,1</text>
-      </svg>
-    );
-  };
-
-  return (
-    <div className="w-full h-full flex items-center justify-center p-4 animate-in fade-in duration-500">
-       {renderTree()}
+  if (isLoading) return (
+    <div className="flex flex-col items-center justify-center h-full text-slate-500 animate-pulse">
+       <span className="flex items-center gap-2"><RefreshCw className="animate-spin" size={16} /> Rendering Tree...</span>
     </div>
   );
+
+  if (svgContent) {
+    return (
+      <div 
+        className="w-full h-full flex items-center justify-center p-4 overflow-auto"
+        dangerouslySetInnerHTML={{ __html: svgContent }}
+      />
+    );
+  }
+
+  return null;
 };
 
 
 export default function App() {
   const [prompt, setPrompt] = useState("");
   const [activeGameId, setActiveGameId] = useState(null);
+  const [presets, setPresets] = useState([]);
   
   // Pipeline States
   const [isCodeGenerating, setIsCodeGenerating] = useState(false);
   const [generatedCode, setGeneratedCode] = useState("");
   
   const [showVisual, setShowVisual] = useState(false);
+  const [visualSvg, setVisualSvg] = useState(null);
+  const [isVisualLoading, setIsVisualLoading] = useState(false);
   
   const [isComputingNash, setIsComputingNash] = useState(false);
   const [nashAlgorithm, setNashAlgorithm] = useState("gnm"); // gnm, lcp, simpdiv
   const [nashResults, setNashResults] = useState(null);
 
+  // Load presets from server
+  const fetchGames = () => {
+    fetch('http://127.0.0.1:5000/games')
+      .then(res => res.json())
+      .then(data => setPresets(data))
+      .catch(err => console.error("Failed to load games:", err));
+  };
+
+  useEffect(() => {
+    fetchGames();
+  }, []);
+
   // Handle Preset Selection
   const loadPreset = (gameId) => {
-    const game = PRESET_GAMES.find(g => g.id === gameId);
+    const game = presets.find(g => g.id === gameId);
     if (game) {
       setPrompt(game.description);
       setActiveGameId(gameId);
       // Reset pipeline
       setGeneratedCode("");
       setShowVisual(false);
+      setVisualSvg(null);
       setNashResults(null);
     }
   };
@@ -291,20 +156,36 @@ export default function App() {
     setShowVisual(false);
     setNashResults(null);
     
-    // Simulate LLM delay
+    // Simulate LLM delay, but use the real code from the file if available
     setTimeout(() => {
-      const game = PRESET_GAMES.find(g => g.id === activeGameId);
+      const game = presets.find(g => g.id === activeGameId);
       // Fallback if custom text used, just show standard template
       const code = game ? game.mockCode : `# Generated Code based on prompt\nimport pygambit as g\ngame = g.Game.new_table([2,2])\n# Logic inferred from prompt...\ngame.title = "Custom Game"`;
       
       setGeneratedCode(code);
       setIsCodeGenerating(false);
-    }, 1500);
+    }, 1000);
   };
 
   // Toggle Visualization
   const handleVisualize = () => {
     setShowVisual(true);
+    if (generatedCode) {
+      setIsVisualLoading(true);
+      fetch('http://127.0.0.1:5000/visualize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: generatedCode })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.svg) {
+          setVisualSvg(data.svg);
+        }
+      })
+      .catch(err => console.error(err))
+      .finally(() => setIsVisualLoading(false));
+    }
   };
 
   // Mock API Call: Compute Nash
@@ -313,7 +194,7 @@ export default function App() {
     setNashResults(null);
     
     setTimeout(() => {
-      const game = PRESET_GAMES.find(g => g.id === activeGameId);
+      const game = presets.find(g => g.id === activeGameId);
       const result = game ? game.nashOutput : `NE 1: Mixed Strategy found via ${nashAlgorithm}`;
       setNashResults(result);
       setIsComputingNash(false);
@@ -341,14 +222,23 @@ export default function App() {
                   className="w-full h-32 p-4 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none transition-shadow text-slate-700 placeholder:text-slate-400"
                 />
                 {/* Preset Dropdown Overlay - simplistic approach for mockup */}
-                <div className="absolute bottom-3 right-3 flex gap-2">
+                <div className="absolute bottom-3 right-3 flex gap-2 items-center">
+                   {presets.length === 0 && (
+                     <button 
+                       onClick={fetchGames}
+                       className="p-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-500 rounded-md transition-colors"
+                       title="Refresh Examples"
+                     >
+                       <RefreshCw size={14} />
+                     </button>
+                   )}
                    <select 
                       onChange={(e) => loadPreset(e.target.value)}
                       className="bg-slate-100 border border-slate-300 text-slate-600 text-xs rounded-md px-2 py-1 hover:bg-slate-200 cursor-pointer outline-none"
                       defaultValue=""
                     >
                       <option value="" disabled>Load Example...</option>
-                      {PRESET_GAMES.map(g => (
+                      {presets.map(g => (
                         <option key={g.id} value={g.id}>{g.name}</option>
                       ))}
                    </select>
@@ -406,7 +296,7 @@ export default function App() {
                   </button>
                </div>
                <div className="flex-1 relative bg-slate-50/30">
-                 <GameTreeVisualizer gameId={activeGameId} show={showVisual} />
+                 <GameTreeVisualizer svgContent={visualSvg} show={showVisual} isLoading={isVisualLoading} />
                </div>
             </div>
 
