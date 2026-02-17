@@ -291,7 +291,7 @@ export default function App() {
         </section>
 
         {/* SECTION 2: Grid Layout for Tools */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[600px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[60vh]">
           
           {/* LEFT COL: Code & Computation */}
           <div className="lg:col-span-7 h-[60vh] flex flex-col gap-6">
