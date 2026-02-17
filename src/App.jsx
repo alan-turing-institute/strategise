@@ -10,7 +10,8 @@ import {
   Maximize2,
   RefreshCw,
   Zap,
-  BookOpen
+  BookOpen,
+  X
 } from 'lucide-react';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import python from 'react-syntax-highlighter/dist/esm/languages/hljs/python';
@@ -122,6 +123,7 @@ export default function App() {
   const [showVisual, setShowVisual] = useState(false);
   const [visualSvg, setVisualSvg] = useState(null);
   const [isVisualLoading, setIsVisualLoading] = useState(false);
+  const [showFullscreenSvg, setShowFullscreenSvg] = useState(false);
   
   const [isComputingNash, setIsComputingNash] = useState(false);
   const [nashAlgorithm, setNashAlgorithm] = useState("enumpure");
@@ -374,22 +376,58 @@ export default function App() {
                   <Network size={16} className="text-indigo-500" />
                   <span className="font-semibold text-slate-700 text-sm">Game Tree Visualization</span>
                 </div>
-                <button
-                  onClick={handleVisualize}
-                  disabled={!generatedCode}
-                  className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded text-xs font-medium text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-colors disabled:opacity-50"
-                >
-                  <Maximize2 size={12} />
-                  Draw via draw_tree
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleVisualize}
+                    disabled={!generatedCode}
+                    className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded text-xs font-medium text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-colors disabled:opacity-50"
+                  >
+                    <Maximize2 size={12} />
+                    Draw via draw_tree
+                  </button>
+                  <button
+                    onClick={() => setShowFullscreenSvg(true)}
+                    disabled={!visualSvg}
+                    className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded text-xs font-medium text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-colors disabled:opacity-50"
+                    title="Expand fullscreen"
+                  >
+                    <Maximize2 size={12} />
+                  </button>
+                </div>
               </div>
-              <div className="flex-1 relative bg-slate-50/30">
+              <div className="flex-1 relative bg-slate-50/30 h-[50vh]">
                 <GameTreeVisualizer svgContent={visualSvg} show={showVisual} isLoading={isVisualLoading} />
               </div>
             </div>
           </div>
         </div>
       </main>
+
+      {/* Fullscreen SVG Modal */}
+      {showFullscreenSvg && visualSvg && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-[95vw] h-[95vh] flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 bg-slate-50 border-b border-slate-200">
+              <div className="flex items-center gap-2">
+                <Network size={18} className="text-indigo-500" />
+                <span className="font-semibold text-slate-700">Game Tree Visualization (Fullscreen)</span>
+              </div>
+              <button
+                onClick={() => setShowFullscreenSvg(false)}
+                className="p-1 hover:bg-slate-200 rounded transition-colors"
+              >
+                <X size={20} className="text-slate-600" />
+              </button>
+            </div>
+            <div className="flex-1 flex items-center justify-center p-4 bg-slate-50/30">
+              <div 
+                className="max-w-full max-h-full"
+                dangerouslySetInnerHTML={{ __html: visualSvg }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
