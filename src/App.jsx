@@ -124,7 +124,7 @@ export default function App() {
   const [isVisualLoading, setIsVisualLoading] = useState(false);
   
   const [isComputingNash, setIsComputingNash] = useState(false);
-  const [nashAlgorithm, setNashAlgorithm] = useState("gnm"); // gnm, lcp, simpdiv
+  const [nashAlgorithm, setNashAlgorithm] = useState("enumpure");
   const [nashResults, setNashResults] = useState(null);
 
   // Load presets from server
@@ -197,13 +197,28 @@ export default function App() {
   const handleComputeNash = () => {
     setIsComputingNash(true);
     setNashResults(null);
-    
-    setTimeout(() => {
-      const game = presets.find(g => g.id === activeGameId);
-      const result = game ? game.nashOutput : `NE 1: Mixed Strategy found via ${nashAlgorithm}`;
-      setNashResults(result);
+
+    fetch('http://127.0.0.1:5000/compute-nash', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: generatedCode, algorithm: nashAlgorithm })
+    })
+    .then(res => {
+      if (!res.ok) {
+        return res.json().then(err => { throw new Error(err.error || 'Server error') });
+      }
+      return res.json();
+    })
+    .then(data => {
+      setNashResults(data.results || "No results returned from solver.");
+    })
+    .catch(err => {
+      console.error(err);
+      setNashResults(`Error: ${err.message}`);
+    })
+    .finally(() => {
       setIsComputingNash(false);
-    }, 1000);
+    });
   };
 
   return (
@@ -323,9 +338,15 @@ export default function App() {
                       onChange={(e) => setNashAlgorithm(e.target.value)}
                       className="appearance-none bg-slate-900 text-slate-200 text-xs py-1 px-3 pr-8 rounded border border-slate-600 hover:border-slate-500 focus:border-blue-500 outline-none cursor-pointer"
                     >
-                      <option value="gnm">Global Newton Method (gnm)</option>
-                      <option value="simpdiv">Simplicial Subdivision (simpdiv)</option>
+                      <option value="enumpure">Pure Strategies (enumpure)</option>
+                      <option value="enummixed">Mixed Strategies (enummixed)</option>
+                      <option value="lp">Linear Programming (lp)</option>
                       <option value="lcp">Linear Complementarity (lcp)</option>
+                      <option value="liap">Liapunov Method (liap)</option>
+                      <option value="logit">Logit Response (logit)</option>
+                      <option value="simpdiv">Simplicial Subdivision (simpdiv)</option>
+                      <option value="ipa">Iterated Polymatrix Approx. (ipa)</option>
+                      <option value="gnm">Global Newton Method (gnm)</option>
                     </select>
                     <ChevronDown size={12} className="absolute right-2 top-1.5 text-slate-400 pointer-events-none" />
                   </div>

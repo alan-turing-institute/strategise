@@ -88,5 +88,57 @@ def visualize():
         print(f"Server error in /visualize: {e}", file=sys.stderr)
         return jsonify({"error": str(e)}), 500
 
+@app.route('/compute-nash', methods=['POST'])
+def compute_nash():
+    data = request.json
+    code = data.get('code', '')
+    algorithm = data.get('algorithm', 'enumpure')
+
+    try:
+        # Execute the code to get the 'game' object
+        local_scope = {}
+        exec(code, {'gbt': gbt}, local_scope)
+        game = local_scope.get('game')
+        
+        if game is None:
+            game = local_scope.get('g')
+
+        if not isinstance(game, gbt.Game):
+            return jsonify({"error": "Code did not produce a 'game' variable of type pygambit.Game"}), 400
+
+        # Select and run the solver
+        solvers = {
+            "enumpure": gbt.nash.enumpure_solve,
+            "enummixed": gbt.nash.enummixed_solve,
+            "lp": gbt.nash.lp_solve,
+            "lcp": gbt.nash.lcp_solve,
+            "liap": gbt.nash.liap_solve,
+            "logit": gbt.nash.logit_solve,
+            "simpdiv": gbt.nash.simpdiv_solve,
+            "ipa": gbt.nash.ipa_solve,
+            "gnm": gbt.nash.gnm_solve,
+        }
+        solver = solvers.get(algorithm)
+        if not solver:
+            return jsonify({"error": f"Unknown algorithm: {algorithm}"}), 400
+
+        solver_output = solver(game)
+
+        # External solvers return a result object with an .equilibria attribute.
+        # Internal python solvers can return a list of profiles, or a single profile.
+        if hasattr(solver_output, 'equilibria'):
+            equilibria = solver_output.equilibria
+        elif isinstance(solver_output, list):
+            equilibria = solver_output
+        else: # Assuming a single NashProfile object was returned
+            equilibria = [solver_output]
+
+        results = "\n".join([f"NE {i+1}: {eq}" for i, eq in enumerate(equilibria)])
+        return jsonify({"results": results or "No equilibria found by this solver."})
+
+    except Exception as e:
+        print(f"Server error in /compute-nash: {e}", file=sys.stderr)
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
