@@ -100,7 +100,7 @@ const GameTreeVisualizer = ({ svgContent, show, isLoading }) => {
   if (svgContent) {
     return (
       <div 
-        className="w-full h-full p-4 overflow-auto [&>svg]:w-full [&>svg]:h-full"
+        className="w-full h-full p-4 flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto"
         dangerouslySetInnerHTML={{ __html: svgContent }}
       />
     );
@@ -291,35 +291,10 @@ export default function App() {
         {/* SECTION 2: Grid Layout for Tools */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[600px]">
           
-          {/* LEFT COL: Code Editor */}
-          <div className="lg:col-span-5 h-[60vh] flex flex-col gap-4">
-             <CodeWindow code={generatedCode} isGenerating={isCodeGenerating} />
-          </div>
-
-          {/* RIGHT COL: Visuals & Computation */}
+          {/* LEFT COL: Code & Computation */}
           <div className="lg:col-span-7 h-[60vh] flex flex-col gap-6">
-            
-            {/* TOP: Visualizer */}
-            <div className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
-               <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50">
-                  <div className="flex items-center gap-2">
-                    <Network size={16} className="text-indigo-500" />
-                    <span className="font-semibold text-slate-700 text-sm">Game Tree Visualization</span>
-                  </div>
-                  <button 
-                    onClick={handleVisualize}
-                    disabled={!generatedCode}
-                    className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded text-xs font-medium text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-colors disabled:opacity-50"
-                  >
-                    <Maximize2 size={12} />
-                    Draw via draw_tree
-                  </button>
-               </div>
-               <div className="flex-1 relative bg-slate-50/30">
-                 <GameTreeVisualizer svgContent={visualSvg} show={showVisual} isLoading={isVisualLoading} />
-               </div>
-            </div>
-
+            {/* TOP: Generated Code */}
+            <CodeWindow code={generatedCode} isGenerating={isCodeGenerating} />
             {/* BOTTOM: Nash Solver */}
             <div className="h-64 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
               {/* Toolbar */}
@@ -351,7 +326,6 @@ export default function App() {
                     <ChevronDown size={12} className="absolute right-2 top-1.5 text-slate-600 pointer-events-none" />
                   </div>
                 </div>
-
                 <button 
                   onClick={handleComputeNash}
                   disabled={!generatedCode || isComputingNash}
@@ -391,6 +365,28 @@ export default function App() {
               </div>
             </div>
 
+          </div>
+          {/* RIGHT COL: Visualizer */}
+          <div className="lg:col-span-5 h-[60vh] flex flex-col gap-4">
+            <div className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50">
+                <div className="flex items-center gap-2">
+                  <Network size={16} className="text-indigo-500" />
+                  <span className="font-semibold text-slate-700 text-sm">Game Tree Visualization</span>
+                </div>
+                <button
+                  onClick={handleVisualize}
+                  disabled={!generatedCode}
+                  className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded text-xs font-medium text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-colors disabled:opacity-50"
+                >
+                  <Maximize2 size={12} />
+                  Draw via draw_tree
+                </button>
+              </div>
+              <div className="flex-1 relative bg-slate-50/30">
+                <GameTreeVisualizer svgContent={visualSvg} show={showVisual} isLoading={isVisualLoading} />
+              </div>
+            </div>
           </div>
         </div>
       </main>
