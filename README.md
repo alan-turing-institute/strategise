@@ -11,6 +11,8 @@ This is a code bundle for GameInterpreter Webapp.
     - `conda create -n gameint python=3.14`
     - `conda activate gameint`
     - `pip install -r requirements.txt`
+- pdf2svg
+    - Mac: `brew install pdf2svg`
 - In two separate terminal tabs:
     - Run `python server.py` to start the Flask backend.
     - Run `npm run dev` to start the development server.
