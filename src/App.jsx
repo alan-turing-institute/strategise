@@ -12,6 +12,11 @@ import {
   Zap,
   BookOpen
 } from 'lucide-react';
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
+import python from 'react-syntax-highlighter/dist/esm/languages/hljs/python';
+import { atomOneDark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+
+SyntaxHighlighter.registerLanguage('python', python);
 
 // --- Mock Data & Constants ---
 
@@ -60,15 +65,14 @@ const CodeWindow = ({ code, isGenerating }) => (
             <span className="flex items-center gap-2"><RefreshCw className="animate-spin" size={16} /> Generating PyGambit model...</span>
          </div>
       ) : code ? (
-        <pre className="text-slate-300 leading-relaxed whitespace-pre-wrap">
-          <code dangerouslySetInnerHTML={{ 
-            __html: code.replace(/import/g, "<span class='text-purple-400'>import</span>")
-                        .replace(/game =/g, "<span class='text-blue-400'>game =</span>")
-                        .replace(/g =/g, "<span class='text-blue-400'>g =</span>")
-                        .replace(/#.*/g, match => `<span class='text-slate-500 italic'>${match}</span>`)
-                        .replace(/"(.*?)"/g, "<span class='text-green-400'>\"$1\"</span>")
-            }} />
-        </pre>
+        <SyntaxHighlighter
+          language="python"
+          style={atomOneDark}
+          customStyle={{ background: 'transparent', padding: 0, margin: 0, fontSize: '0.875rem' }}
+          wrapLongLines={true}
+        >
+          {code}
+        </SyntaxHighlighter>
       ) : (
         <div className="flex flex-col items-center justify-center h-full text-slate-600">
            <Zap size={32} className="mb-2 opacity-50"/>
