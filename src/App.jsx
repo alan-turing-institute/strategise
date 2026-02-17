@@ -65,15 +65,14 @@ const CodeWindow = ({ code, isGenerating }) => (
             <span className="flex items-center gap-2"><RefreshCw className="animate-spin" size={16} /> Generating PyGambit model...</span>
          </div>
       ) : code ? (
-        <div className="syntax-highlighter-reset">
-          <SyntaxHighlighter
-            language="python"
-            style={atomOneLight}
-            wrapLongLines={true}
-          >
-            {code}
-          </SyntaxHighlighter>
-        </div>
+        <SyntaxHighlighter
+          language="python"
+          style={atomOneLight}
+          customStyle={{ background: 'transparent', padding: 0, margin: 0, fontSize: '0.875rem' }}
+          wrapLongLines={true}
+        >
+          {code}
+        </SyntaxHighlighter>
       ) : (
         <div className="flex flex-col items-center justify-center h-full text-slate-400">
            <Zap size={32} className="mb-2 opacity-50"/>
@@ -293,7 +292,7 @@ export default function App() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[600px]">
           
           {/* LEFT COL: Code Editor */}
-          <div className="lg:col-span-5 h-full flex flex-col gap-4">
+          <div className="lg:col-span-5 h-[60vh] flex flex-col gap-4">
              <CodeWindow code={generatedCode} isGenerating={isCodeGenerating} />
           </div>
 
