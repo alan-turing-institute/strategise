@@ -10,3 +10,23 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+@layer components {
+  .syntax-highlighter-reset {
+    @apply bg-transparent p-0 m-0 text-sm;
+  }
+
+  .syntax-highlighter-reset pre {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 0.875rem !important;
+    max-height: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .syntax-highlighter-reset code {
+    background: transparent !important;
+  }
+}

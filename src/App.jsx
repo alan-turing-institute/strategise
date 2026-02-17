@@ -65,14 +65,15 @@ const CodeWindow = ({ code, isGenerating }) => (
             <span className="flex items-center gap-2"><RefreshCw className="animate-spin" size={16} /> Generating PyGambit model...</span>
          </div>
       ) : code ? (
-        <SyntaxHighlighter
-          language="python"
-          style={atomOneLight}
-          customStyle={{ background: 'transparent', padding: 0, margin: 0, fontSize: '0.875rem' }}
-          wrapLongLines={true}
-        >
-          {code}
-        </SyntaxHighlighter>
+        <div className="syntax-highlighter-reset">
+          <SyntaxHighlighter
+            language="python"
+            style={atomOneLight}
+            wrapLongLines={true}
+          >
+            {code}
+          </SyntaxHighlighter>
+        </div>
       ) : (
         <div className="flex flex-col items-center justify-center h-full text-slate-400">
            <Zap size={32} className="mb-2 opacity-50"/>
