@@ -419,9 +419,9 @@ export default function App() {
                 <X size={20} className="text-slate-600" />
               </button>
             </div>
-            <div className="flex-1 flex items-center justify-center p-4 bg-slate-50/30">
+            <div className="flex-1 overflow-auto p-4 bg-slate-50/30">
               <div 
-                className="max-w-full max-h-full"
+                className="min-w-full min-h-full [&>svg]:w-full [&>svg]:h-full"
                 dangerouslySetInnerHTML={{ __html: visualSvg }}
               />
             </div>
