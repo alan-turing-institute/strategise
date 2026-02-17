@@ -24,7 +24,7 @@ SyntaxHighlighter.registerLanguage('python', python);
 // --- Components ---
 
 const Header = () => (
-  <header className="flex items-center justify-between px-6 py-4 bg-white text-slate-900 border-b border-slate-200">
+  <header className="flex items-center justify-center px-6 py-4 bg-white text-slate-900 border-b border-slate-200">
     <div className="flex items-center gap-3">
       <div className="p-2 bg-blue-600 rounded-lg shadow-lg shadow-blue-500/20">
         <Network size={24} className="text-white" />
@@ -33,14 +33,6 @@ const Header = () => (
         <h1 className="text-xl font-bold tracking-tight">GameInterpreter</h1>
         <p className="text-xs text-slate-500 font-medium tracking-wide">AI-POWERED GAME THEORY MODELING</p>
       </div>
-    </div>
-    <div className="flex gap-4">
-      <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
-        <BookOpen size={16} /> Documentation
-      </button>
-      <button className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-md border border-slate-200 transition-all text-sm font-medium text-slate-700">
-        <Share2 size={16} /> Share Project
-      </button>
     </div>
   </header>
 );
