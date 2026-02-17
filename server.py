@@ -1,9 +1,12 @@
 import os
 import glob
+import sys
+import subprocess
+import tempfile
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import pygambit as gbt
-from draw_tree import draw_tree
+from draw_tree import generate_pdf
 
 app = Flask(__name__)
 CORS(app)
@@ -70,16 +73,19 @@ def visualize():
         if not isinstance(game, gbt.Game):
             return jsonify({"error": "Code did not produce a 'game' variable of type pygambit.Game"}), 400
 
-        # Generate visualization
-        viz = draw_tree(game, color_scheme="gambit")
-        
-        # Extract SVG from the IPython display object
-        if hasattr(viz, '_repr_svg_'):
-            return jsonify({"svg": viz._repr_svg_()})
-        else:
-            return jsonify({"error": "Could not generate SVG from draw_tree output."}), 500
+        # Generate visualization PDF using draw_tree
+        with tempfile.TemporaryDirectory() as tmpdir:
+            pdf_path = os.path.join(tmpdir, 'tree.pdf')
+            generate_pdf(game, color_scheme="gambit", save_to=pdf_path)
+            # Convert to SVG using pdf2svg
+            svg_path = os.path.join(tmpdir, 'tree.svg')
+            subprocess.run(['pdf2svg', pdf_path, svg_path], check=True)
+            with open(svg_path, 'r') as svg_file:
+                svg_content = svg_file.read()
+            return jsonify({"svg": svg_content})
             
     except Exception as e:
+        print(f"Server error in /visualize: {e}", file=sys.stderr)
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
