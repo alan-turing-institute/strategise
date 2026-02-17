@@ -62,11 +62,11 @@ const CodeWindow = ({ code, isGenerating }) => (
       ) : code ? (
         <pre className="text-slate-300 leading-relaxed whitespace-pre-wrap">
           <code dangerouslySetInnerHTML={{ 
-            __html: code.replace(/import/g, '<span class="text-purple-400">import</span>')
-                        .replace(/game =/g, '<span class="text-blue-400">game =</span>')
-                        .replace(/g =/g, '<span class="text-blue-400">g =</span>')
-                        .replace(/#.*/g, match => `<span class="text-slate-500 italic">${match}</span>`)
-                        .replace(/"(.*?)"/g, '<span class="text-green-400">"$1"</span>')
+            __html: code.replace(/import/g, "<span class='text-purple-400'>import</span>")
+                        .replace(/game =/g, "<span class='text-blue-400'>game =</span>")
+                        .replace(/g =/g, "<span class='text-blue-400'>g =</span>")
+                        .replace(/#.*/g, match => `<span class='text-slate-500 italic'>${match}</span>`)
+                        .replace(/"(.*?)"/g, "<span class='text-green-400'>\"$1\"</span>")
             }} />
         </pre>
       ) : (
