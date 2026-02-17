@@ -218,9 +218,32 @@ export default function App() {
         <section className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1">
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Describe your game
-              </label>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-semibold text-slate-700">
+                  Describe your game
+                </label>
+                <div className="flex gap-2 items-center">
+                  {presets.length === 0 && (
+                    <button 
+                      onClick={fetchGames}
+                      className="p-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-500 rounded-md transition-colors"
+                      title="Refresh Examples"
+                    >
+                      <RefreshCw size={14} />
+                    </button>
+                  )}
+                  <select 
+                     onChange={(e) => loadPreset(e.target.value)}
+                     className="bg-slate-100 border border-slate-300 text-slate-600 text-xs rounded-md px-2 py-1 hover:bg-slate-200 cursor-pointer outline-none"
+                     defaultValue=""
+                   >
+                     <option value="" disabled>Load Example...</option>
+                     {presets.map(g => (
+                       <option key={g.id} value={g.id}>{g.name}</option>
+                     ))}
+                   </select>
+                </div>
+              </div>
               <div className="relative">
                 <textarea
                   value={prompt}
@@ -228,28 +251,6 @@ export default function App() {
                   placeholder="E.g., Two firms are competing for market share. If both set high prices..."
                   className="w-full h-32 p-4 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none transition-shadow text-slate-700 placeholder:text-slate-400"
                 />
-                {/* Preset Dropdown Overlay - simplistic approach for mockup */}
-                <div className="absolute bottom-3 right-3 flex gap-2 items-center">
-                   {presets.length === 0 && (
-                     <button 
-                       onClick={fetchGames}
-                       className="p-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-500 rounded-md transition-colors"
-                       title="Refresh Examples"
-                     >
-                       <RefreshCw size={14} />
-                     </button>
-                   )}
-                   <select 
-                      onChange={(e) => loadPreset(e.target.value)}
-                      className="bg-slate-100 border border-slate-300 text-slate-600 text-xs rounded-md px-2 py-1 hover:bg-slate-200 cursor-pointer outline-none"
-                      defaultValue=""
-                    >
-                      <option value="" disabled>Load Example...</option>
-                      {presets.map(g => (
-                        <option key={g.id} value={g.id}>{g.name}</option>
-                      ))}
-                   </select>
-                </div>
               </div>
             </div>
 
