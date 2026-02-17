@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import python from 'react-syntax-highlighter/dist/esm/languages/hljs/python';
-import { atomOneDark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 SyntaxHighlighter.registerLanguage('python', python);
 
@@ -23,21 +23,21 @@ SyntaxHighlighter.registerLanguage('python', python);
 // --- Components ---
 
 const Header = () => (
-  <header className="flex items-center justify-between px-6 py-4 bg-slate-900 text-white border-b border-slate-700">
+  <header className="flex items-center justify-between px-6 py-4 bg-white text-slate-900 border-b border-slate-200">
     <div className="flex items-center gap-3">
       <div className="p-2 bg-blue-600 rounded-lg shadow-lg shadow-blue-500/20">
         <Network size={24} className="text-white" />
       </div>
       <div>
         <h1 className="text-xl font-bold tracking-tight">GameInterpreter</h1>
-        <p className="text-xs text-slate-400 font-medium tracking-wide">AI-POWERED GAME THEORY MODELING</p>
+        <p className="text-xs text-slate-500 font-medium tracking-wide">AI-POWERED GAME THEORY MODELING</p>
       </div>
     </div>
     <div className="flex gap-4">
-      <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-300 hover:text-white transition-colors">
+      <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
         <BookOpen size={16} /> Documentation
       </button>
-      <button className="flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-md border border-slate-600 transition-all text-sm font-medium">
+      <button className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-md border border-slate-200 transition-all text-sm font-medium text-slate-700">
         <Share2 size={16} /> Share Project
       </button>
     </div>
@@ -45,36 +45,36 @@ const Header = () => (
 );
 
 const CodeWindow = ({ code, isGenerating }) => (
-  <div className="flex flex-col h-full bg-slate-900 rounded-xl border border-slate-700 overflow-hidden shadow-sm">
-    <div className="flex items-center justify-between px-4 py-3 bg-slate-800 border-b border-slate-700">
+  <div className="flex flex-col h-full bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200">
       <div className="flex items-center gap-2">
         <CodeIcon size={16} className="text-blue-400" />
-        <span className="font-semibold text-slate-200 text-sm">Generated Python Code (PyGambit)</span>
+        <span className="font-semibold text-slate-700 text-sm">Generated Python Code (PyGambit)</span>
       </div>
       <div className="flex gap-2">
          <div className="flex gap-1.5">
-           <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50"></div>
-           <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
-           <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50"></div>
+           <div className="w-3 h-3 rounded-full bg-red-400"></div>
+           <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+           <div className="w-3 h-3 rounded-full bg-green-400"></div>
          </div>
       </div>
     </div>
-    <div className="flex-1 overflow-auto p-4 font-mono text-sm relative group">
+    <div className="flex-1 overflow-auto p-4 font-mono text-sm relative group bg-gray-50">
       {isGenerating ? (
-         <div className="flex items-center justify-center h-full text-slate-500 animate-pulse">
+         <div className="flex items-center justify-center h-full text-slate-400 animate-pulse">
             <span className="flex items-center gap-2"><RefreshCw className="animate-spin" size={16} /> Generating PyGambit model...</span>
          </div>
       ) : code ? (
         <SyntaxHighlighter
           language="python"
-          style={atomOneDark}
+          style={atomOneLight}
           customStyle={{ background: 'transparent', padding: 0, margin: 0, fontSize: '0.875rem' }}
           wrapLongLines={true}
         >
           {code}
         </SyntaxHighlighter>
       ) : (
-        <div className="flex flex-col items-center justify-center h-full text-slate-600">
+        <div className="flex flex-col items-center justify-center h-full text-slate-400">
            <Zap size={32} className="mb-2 opacity-50"/>
            <p>Enter a description and generate code to view it here.</p>
         </div>
@@ -321,22 +321,22 @@ export default function App() {
             </div>
 
             {/* BOTTOM: Nash Solver */}
-            <div className="h-64 bg-slate-900 rounded-xl shadow-sm border border-slate-700 flex flex-col overflow-hidden">
+            <div className="h-64 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
               {/* Toolbar */}
-              <div className="flex items-center gap-4 px-4 py-3 bg-slate-800 border-b border-slate-700">
+              <div className="flex items-center gap-4 px-4 py-3 bg-slate-50 border-b border-slate-200">
                 <div className="flex items-center gap-2">
-                  <Cpu size={16} className="text-emerald-400" />
-                  <span className="font-semibold text-slate-200 text-sm">Nash Equilibria Solver</span>
+                  <Cpu size={16} className="text-emerald-600" />
+                  <span className="font-semibold text-slate-700 text-sm">Nash Equilibria Solver</span>
                 </div>
-                <div className="h-4 w-px bg-slate-600"></div>
+                <div className="h-4 w-px bg-slate-300"></div>
                 
                 <div className="flex items-center gap-2 flex-1">
-                  <label className="text-xs text-slate-400">Algorithm:</label>
+                  <label className="text-xs text-slate-600">Algorithm:</label>
                   <div className="relative group">
                     <select 
                       value={nashAlgorithm}
                       onChange={(e) => setNashAlgorithm(e.target.value)}
-                      className="appearance-none bg-slate-900 text-slate-200 text-xs py-1 px-3 pr-8 rounded border border-slate-600 hover:border-slate-500 focus:border-blue-500 outline-none cursor-pointer"
+                      className="appearance-none bg-white text-slate-700 text-xs py-1 px-3 pr-8 rounded border border-slate-300 hover:border-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-400/30 outline-none cursor-pointer transition-colors"
                     >
                       <option value="enumpure">Pure Strategies (enumpure)</option>
                       <option value="enummixed">Mixed Strategies (enummixed)</option>
@@ -348,7 +348,7 @@ export default function App() {
                       <option value="ipa">Iterated Polymatrix Approx. (ipa)</option>
                       <option value="gnm">Global Newton Method (gnm)</option>
                     </select>
-                    <ChevronDown size={12} className="absolute right-2 top-1.5 text-slate-400 pointer-events-none" />
+                    <ChevronDown size={12} className="absolute right-2 top-1.5 text-slate-600 pointer-events-none" />
                   </div>
                 </div>
 
@@ -363,26 +363,26 @@ export default function App() {
               </div>
 
               {/* Console Output */}
-              <div className="flex-1 p-4 font-mono text-sm overflow-y-auto">
+              <div className="flex-1 p-4 font-mono text-sm overflow-y-auto bg-slate-50">
                 {!generatedCode ? (
                   <div className="text-slate-600 italic">Waiting for game model generation...</div>
                 ) : !nashResults && !isComputingNash ? (
                   <div className="text-slate-500">Ready to compute. Select an algorithm and run.</div>
                 ) : isComputingNash ? (
                    <div className="flex flex-col gap-2">
-                     <div className="text-emerald-500/70">&gt; Initializing solver engine...</div>
-                     <div className="text-emerald-500/70">&gt; Loading pygambit.{nashAlgorithm}...</div>
-                     <div className="text-white animate-pulse">&gt; Computing...</div>
+                     <div className="text-emerald-600">&gt; Initializing solver engine...</div>
+                     <div className="text-emerald-600">&gt; Loading pygambit.{nashAlgorithm}...</div>
+                     <div className="text-slate-700 animate-pulse">&gt; Computing...</div>
                    </div>
                 ) : (
                   <div className="flex flex-col gap-2 animate-in slide-in-from-bottom-2 duration-300">
-                    <div className="text-slate-400 text-xs border-b border-slate-800 pb-2 mb-2">
-                      Output for {activeGameId || 'Custom Game'} using <span className="text-emerald-400">{nashAlgorithm}</span>:
+                    <div className="text-slate-600 text-xs border-b border-slate-200 pb-2 mb-2">
+                      Output for {activeGameId || 'Custom Game'} using <span className="text-emerald-600 font-medium">{nashAlgorithm}</span>:
                     </div>
                     {nashResults.split('\n').map((line, i) => (
                       <div key={i} className="flex gap-2">
-                        <span className="text-emerald-500">➜</span>
-                        <span className="text-slate-200">{line}</span>
+                        <span className="text-emerald-600">➜</span>
+                        <span className="text-slate-700">{line}</span>
                       </div>
                     ))}
                     <div className="text-slate-500 text-xs mt-2">&gt; Process finished with exit code 0</div>
