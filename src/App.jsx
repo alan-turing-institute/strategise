@@ -297,7 +297,7 @@ export default function App() {
           </div>
 
           {/* RIGHT COL: Visuals & Computation */}
-          <div className="lg:col-span-7 h-full flex flex-col gap-6">
+          <div className="lg:col-span-7 h-[60vh] flex flex-col gap-6">
             
             {/* TOP: Visualizer */}
             <div className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
