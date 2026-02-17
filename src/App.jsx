@@ -100,7 +100,7 @@ const GameTreeVisualizer = ({ svgContent, show, isLoading }) => {
   if (svgContent) {
     return (
       <div 
-        className="w-full h-full flex items-center justify-center p-4 overflow-auto"
+        className="w-full h-full p-4 overflow-auto [&>svg]:w-full [&>svg]:h-full"
         dangerouslySetInnerHTML={{ __html: svgContent }}
       />
     );
