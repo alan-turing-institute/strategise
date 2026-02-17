@@ -44,13 +44,6 @@ const CodeWindow = ({ code, isGenerating }) => (
         <CodeIcon size={16} className="text-blue-400" />
         <span className="font-semibold text-slate-700 text-sm">Generated Python Code (PyGambit)</span>
       </div>
-      <div className="flex gap-2">
-         <div className="flex gap-1.5">
-           <div className="w-3 h-3 rounded-full bg-red-400"></div>
-           <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-           <div className="w-3 h-3 rounded-full bg-green-400"></div>
-         </div>
-      </div>
     </div>
     <div className="flex-1 overflow-auto p-4 font-mono text-sm relative group bg-gray-50">
       {isGenerating ? (
