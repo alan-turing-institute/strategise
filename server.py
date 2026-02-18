@@ -4,6 +4,7 @@ import sys
 import subprocess
 import tempfile
 import re
+import traceback
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import pygambit as gbt
@@ -198,6 +199,7 @@ def visualize():
             pdf_path = os.path.join(tmpdir, 'tree.pdf')
 
             # Generate PDF with visualization settings
+            print(f"[DEBUG] Generating PDF at {pdf_path}...", file=sys.stderr)
             generate_pdf(
                 game,
                 shared_terminal_depth=settings['shared_terminal_depth'],
@@ -210,16 +212,29 @@ def visualize():
                 color_scheme=settings['color_scheme'],
                 save_to=pdf_path
             )
+            print(f"[DEBUG] PDF generated. Converting to SVG...", file=sys.stderr)
+            
             # Convert to SVG using pdf2svg
             svg_path = os.path.join(tmpdir, 'tree.svg')
-            subprocess.run(['pdf2svg', pdf_path, svg_path], check=True)
+            result = subprocess.run(['pdf2svg', pdf_path, svg_path], 
+                                   capture_output=True, text=True, check=False)
+            
+            if result.returncode != 0:
+                error_msg = f"pdf2svg failed: {result.stderr}"
+                print(f"[ERROR] {error_msg}", file=sys.stderr)
+                return jsonify({"error": error_msg}), 500
+            
+            print(f"[DEBUG] SVG generated. Reading file...", file=sys.stderr)
             with open(svg_path, 'r') as svg_file:
                 svg_content = svg_file.read()
+            
+            print(f"[DEBUG] Visualization complete.", file=sys.stderr)
             return jsonify({"svg": svg_content})
             
     except Exception as e:
-        print(f"Server error in /visualize: {e}", file=sys.stderr)
-        return jsonify({"error": str(e)}), 500
+        error_details = traceback.format_exc()
+        print(f"[ERROR] Server error in /visualize:\n{error_details}", file=sys.stderr)
+        return jsonify({"error": str(e), "details": error_details}), 500
 
 @app.route('/compute-nash', methods=['POST'])
 def compute_nash():
