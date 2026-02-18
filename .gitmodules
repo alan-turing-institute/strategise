@@ -1,0 +1,3 @@
+[submodule "GameInterpreter"]
+	path = GameInterpreter
+	url = https://github.com/zczlsde/GameInterpreter
