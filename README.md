@@ -52,15 +52,25 @@ The extracted Python code automatically:
 - Removes file write/save operations (to allow visualization and Nash computation)
 - Is executable as-is for game tree visualization and equilibrium analysis
 
-## Running the code
+## Running the app locally
 
 - Run `npm i` to install the JS dependencies.
+- Install LaTeX
+    - macOS:
+        - Install [MacTEX](https://www.tug.org/mactex/mactex-download.html)
+        - or `brew install --cask mactex`
+    - Ubuntu:
+        - `sudo apt-get install texlive-full`
+    - Windows: Install [MiKTeX](https://miktex.org/download)
+- Install "pdf2svg"
+    - macOS:
+        - `brew install pdf2svg`
+    - Ubuntu:
+        - `sudo apt install pdf2svg`
 - Run the following for Python:
     - `conda create -n gameint python=3.14`
     - `conda activate gameint`
     - `pip install -r requirements.txt`
-- pdf2svg
-    - Mac: `brew install pdf2svg`
 - In two separate terminal tabs:
     - Run `python server.py` to start the Flask backend.
     - Run `npm run dev` to start the development server.
