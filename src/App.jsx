@@ -71,7 +71,7 @@ const CodeWindow = ({ code, isGenerating }) => (
 );
 
 // A simple tree visualizer mockup using SVG
-const GameTreeVisualizer = ({ svgContent, show, isLoading }) => {
+const GameTreeVisualizer = ({ svgContent, show, isLoading, error }) => {
   if (!show) return (
     <div className="flex flex-col items-center justify-center h-full text-slate-400 bg-slate-50/50">
        <p className="text-sm">Click "Visualize Game Tree" to render</p>
@@ -83,6 +83,17 @@ const GameTreeVisualizer = ({ svgContent, show, isLoading }) => {
        <span className="flex items-center gap-2"><RefreshCw className="animate-spin" size={16} /> Rendering Tree...</span>
     </div>
   );
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full p-4 text-center">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md">
+          <p className="text-red-800 font-semibold mb-2">Error rendering visualization</p>
+          <p className="text-red-700 text-sm whitespace-pre-wrap break-words">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (svgContent) {
     return (
@@ -170,6 +181,7 @@ export default function App() {
   const [isComputingNash, setIsComputingNash] = useState(false);
   const [nashAlgorithm, setNashAlgorithm] = useState("enumpure");
   const [nashResults, setNashResults] = useState(null);
+  const [visualError, setVisualError] = useState(null);
 
   // Load presets from server
   const fetchGames = () => {
@@ -219,6 +231,7 @@ export default function App() {
   // Toggle Visualization
   const handleVisualize = () => {
     setShowVisual(true);
+    setVisualError(null);
     if (generatedCode) {
       setIsVisualLoading(true);
       fetch('http://127.0.0.1:5000/visualize', {
@@ -226,13 +239,23 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: generatedCode, ...vizSettings })
       })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(err => { throw new Error(err.error || 'Failed to generate visualization') });
+        }
+        return res.json();
+      })
       .then(data => {
         if (data.svg) {
           setVisualSvg(data.svg);
+        } else if (data.error) {
+          setVisualError(data.error);
         }
       })
-      .catch(err => console.error(err))
+      .catch(err => {
+        console.error(err);
+        setVisualError(err.message || 'Failed to generate visualization');
+      })
       .finally(() => setIsVisualLoading(false));
     }
   };
@@ -443,7 +466,7 @@ export default function App() {
               </div>
 
               <div className="flex-1 relative bg-slate-50/30 h-[50vh]">
-                <GameTreeVisualizer svgContent={visualSvg} show={showVisual} isLoading={isVisualLoading} />
+                <GameTreeVisualizer svgContent={visualSvg} show={showVisual} isLoading={isVisualLoading} error={visualError} />
               </div>
             </div>
           </div>
