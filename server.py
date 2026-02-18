@@ -146,10 +146,39 @@ def get_games():
     games = get_dataset_games()
     return jsonify(games)
 
+@app.route('/visualization-settings', methods=['GET'])
+def get_visualization_settings():
+    """
+    Get the default settings for game tree visualization.
+    These correspond to the parameters available in draw_tree/generate_pdf.
+    """
+    return jsonify({
+        "shared_terminal_depth": False,
+        "scale_factor": 1.0,
+        "level_scaling": 1.0,
+        "sublevel_scaling": 1.0,
+        "width_scaling": 1.0,
+        "edge_thickness": 1.0,
+        "action_label_position": 0.5,
+        "color_scheme": "gambit"
+    })
+
 @app.route('/visualize', methods=['POST'])
 def visualize():
     data = request.json
     code = data.get('code', '')
+    
+    # Get visualization settings with defaults
+    settings = {
+        'shared_terminal_depth': data.get('shared_terminal_depth', False),
+        'scale_factor': data.get('scale_factor', 1.0),
+        'level_scaling': data.get('level_scaling', 1.0),
+        'sublevel_scaling': data.get('sublevel_scaling', 1.0),
+        'width_scaling': data.get('width_scaling', 1.0),
+        'edge_thickness': data.get('edge_thickness', 1.0),
+        'action_label_position': data.get('action_label_position', 0.5),
+        'color_scheme': data.get('color_scheme', 'gambit')
+    }
     
     try:
         # Execute the code to get the 'game' object
@@ -164,10 +193,23 @@ def visualize():
         if not isinstance(game, gbt.Game):
             return jsonify({"error": "Code did not produce a 'game' variable of type pygambit.Game"}), 400
 
-        # Generate visualization PDF using draw_tree
+        # Generate visualization PDF using draw_tree with provided settings
         with tempfile.TemporaryDirectory() as tmpdir:
             pdf_path = os.path.join(tmpdir, 'tree.pdf')
-            generate_pdf(game, color_scheme="gambit", save_to=pdf_path)
+
+            # Generate PDF with visualization settings
+            generate_pdf(
+                game,
+                shared_terminal_depth=settings['shared_terminal_depth'],
+                scale_factor=settings['scale_factor'],
+                level_scaling=settings['level_scaling'],
+                sublevel_scaling=settings['sublevel_scaling'],
+                width_scaling=settings['width_scaling'],
+                edge_thickness=settings['edge_thickness'],
+                action_label_position=settings['action_label_position'],
+                color_scheme=settings['color_scheme'],
+                save_to=pdf_path
+            )
             # Convert to SVG using pdf2svg
             svg_path = os.path.join(tmpdir, 'tree.svg')
             subprocess.run(['pdf2svg', pdf_path, svg_path], check=True)
