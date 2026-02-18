@@ -11,7 +11,8 @@ import {
   RefreshCw,
   Zap,
   BookOpen,
-  X
+  X,
+  Settings
 } from 'lucide-react';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import python from 'react-syntax-highlighter/dist/esm/languages/hljs/python';
@@ -121,6 +122,7 @@ export default function App() {
     action_label_position: 0.5,
     color_scheme: "gambit"
   });
+  const [showVizSettings, setShowVizSettings] = useState(false);
   
   const [isComputingNash, setIsComputingNash] = useState(false);
   const [nashAlgorithm, setNashAlgorithm] = useState("enumpure");
@@ -384,6 +386,13 @@ export default function App() {
                     Draw via draw_tree
                   </button>
                   <button
+                    onClick={() => setShowVizSettings(!showVizSettings)}
+                    className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded text-xs font-medium text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-colors"
+                    title="Toggle visualization settings"
+                  >
+                    <Settings size={12} />
+                  </button>
+                  <button
                     onClick={() => setShowFullscreenSvg(true)}
                     disabled={!visualSvg}
                     className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded text-xs font-medium text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-colors disabled:opacity-50"
@@ -395,6 +404,7 @@ export default function App() {
               </div>
 
               {/* Visualization Settings Control Panel */}
+              {showVizSettings && (
               <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 grid grid-cols-2 gap-3 text-xs">
                 <div>
                   <label className="block text-slate-600 font-medium mb-1">Scale Factor</label>
@@ -502,6 +512,7 @@ export default function App() {
                   </select>
                 </div>
               </div>
+              )}
 
               <div className="flex-1 relative bg-slate-50/30 h-[50vh]">
                 <GameTreeVisualizer svgContent={visualSvg} show={showVisual} isLoading={isVisualLoading} />
