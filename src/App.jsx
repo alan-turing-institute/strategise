@@ -335,18 +335,38 @@ export default function App() {
             </div>
 
             <div className="w-full md:w-64 flex flex-col justify-end gap-3">
+              <div className="flex flex-col gap-2">
+                <button 
+                  onClick={handleGenerateCode}
+                  disabled={!prompt || isCodeGenerating}
+                  className={`flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-white shadow-lg shadow-blue-500/30 transition-all transform active:scale-95 ${
+                    !prompt ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 hover:-translate-y-0.5'
+                  }`}
+                >
+                  {isCodeGenerating ? (
+                     <RefreshCw className="animate-spin" size={20} />
+                  ) : (
+                     <Zap size={20} className="fill-blue-400 text-white" /> 
+                  )}
+                  V1 code
+                </button>
+                <p className="text-xs text-slate-500 text-center leading-relaxed px-2">
+                  Code from GameInterpreter V1 Experiment, see{' '}
+                  <a 
+                    href="https://github.com/edwardchalstrey1/game?tab=readme-ov-file#example-games-data-source" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 underline"
+                  >
+                    details
+                  </a>
+                </p>
+              </div>
               <button 
-                onClick={handleGenerateCode}
-                disabled={!prompt || isCodeGenerating}
-                className={`flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-white shadow-lg shadow-blue-500/30 transition-all transform active:scale-95 ${
-                  !prompt ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 hover:-translate-y-0.5'
-                }`}
+                disabled={true}
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-white bg-slate-400 cursor-not-allowed opacity-60 transition-all"
               >
-                {isCodeGenerating ? (
-                   <RefreshCw className="animate-spin" size={20} />
-                ) : (
-                   <Zap size={20} className="fill-blue-400 text-white" /> 
-                )}
+                <Zap size={20} className="fill-slate-300 text-slate-300" /> 
                 Generate Code
               </button>
               <p className="text-xs text-slate-500 text-center leading-relaxed px-2">
