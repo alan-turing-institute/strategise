@@ -1,18 +1,14 @@
-FROM python:3.11
+FROM ubuntu:24.04
+
+# Install Python and system dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    texlive-full \
+    pdf2svg \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-
-# Install system dependencies: LaTeX and pdf2svg
-# texlive: includes pdflatex
-# texlive-latex-extra: includes TikZ/PGF packages
-# texlive-fonts-recommended: font support
-RUN apt-get update && apt-get install -y \
-    texlive \
-    texlive-latex-extra \
-    texlive-fonts-recommended \
-    pdf2svg \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt .
@@ -25,4 +21,4 @@ COPY . .
 EXPOSE 5000
 
 # Run Flask development server
-CMD ["python", "server.py"]
+CMD ["python3", "server.py"]
