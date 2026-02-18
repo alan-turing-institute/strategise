@@ -384,10 +384,10 @@ export default function App() {
         </section>
 
         {/* SECTION 2: Grid Layout for Tools */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[60vh]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
           {/* LEFT COL: Code & Computation */}
-          <div className="lg:col-span-7 h-[60vh] flex flex-col gap-6">
+          <div className="lg:col-span-7 h-[50vh] flex flex-col gap-6">
             {/* TOP: Generated Code */}
             <CodeWindow code={generatedCode} isGenerating={isCodeGenerating} />
             {/* BOTTOM: Nash Solver */}
@@ -462,7 +462,7 @@ export default function App() {
 
           </div>
           {/* RIGHT COL: Visualizer */}
-          <div className="lg:col-span-5 h-[60vh] flex flex-col gap-4">
+          <div className="lg:col-span-5 h-[50vh] flex flex-col gap-4">
             <div className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
               <div className="flex gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50">
                 <button
@@ -492,7 +492,7 @@ export default function App() {
                 </button>
               </div>
 
-              <div className="flex-1 relative bg-slate-50/30 h-[50vh]">
+              <div className="flex-1 relative bg-slate-50/30 h-[40vh]">
                 <GameTreeVisualizer svgContent={visualSvg} show={showVisual} isLoading={isVisualLoading} error={visualError} />
               </div>
             </div>
