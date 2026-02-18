@@ -114,6 +114,7 @@ export default function App() {
   const [prompt, setPrompt] = useState("");
   const [activeGameId, setActiveGameId] = useState(null);
   const [presets, setPresets] = useState([]);
+  const [promptEdited, setPromptEdited] = useState(false);
   
   // Pipeline States
   const [isCodeGenerating, setIsCodeGenerating] = useState(false);
@@ -203,6 +204,7 @@ export default function App() {
     if (game) {
       setPrompt(game.description);
       setActiveGameId(gameId);
+      setPromptEdited(false);
       // Reset pipeline
       setGeneratedCode("");
       setShowVisual(false);
@@ -319,7 +321,7 @@ export default function App() {
                      className="bg-slate-100 border border-slate-300 text-slate-600 text-xs rounded-md px-2 py-1 hover:bg-slate-200 cursor-pointer outline-none"
                      defaultValue=""
                    >
-                     <option value="" disabled>Load Example...</option>
+                     <option value="" disabled>📚 Load Example Game...</option>
                      {presets.map(g => (
                        <option key={g.id} value={g.id}>{g.name}</option>
                      ))}
@@ -329,7 +331,10 @@ export default function App() {
               <div className="relative">
                 <textarea
                   value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
+                  onChange={(e) => {
+                    setPrompt(e.target.value);
+                    setPromptEdited(true);
+                  }}
                   placeholder="E.g., Two firms are competing for market share. If both set high prices..."
                   className="w-full h-32 p-4 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none transition-shadow text-slate-700 placeholder:text-slate-400"
                 />
@@ -350,9 +355,10 @@ export default function App() {
               <div className="flex flex-col gap-2">
                 <button
                   onClick={handleGenerateCode}
-                  disabled={!prompt || isCodeGenerating}
-                  className={`flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-white shadow-lg shadow-blue-500/30 transition-all transform active:scale-95 ${!prompt ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 hover:-translate-y-0.5'
-                    }`}
+                  disabled={!activeGameId || promptEdited || isCodeGenerating}
+                  className={`flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-white shadow-lg shadow-blue-500/30 transition-all transform active:scale-95 ${
+                    !activeGameId || promptEdited ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 hover:-translate-y-0.5'
+                  }`}
                 >
                   {isCodeGenerating ? (
                     <RefreshCw className="animate-spin" size={20} />
