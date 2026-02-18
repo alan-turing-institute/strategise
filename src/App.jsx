@@ -40,7 +40,7 @@ const Header = () => (
   </header>
 );
 
-const CodeWindow = ({ code, isGenerating }) => (
+const CodeWindow = ({ code, isGenerating, codeWindowRef }) => (
   <div className="flex flex-col h-full bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
     <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200">
       <div className="flex items-center gap-2">
@@ -48,7 +48,9 @@ const CodeWindow = ({ code, isGenerating }) => (
         <span className="font-semibold text-slate-700 text-sm">Generated Python Code (PyGambit)</span>
       </div>
     </div>
-    <div className="flex-1 overflow-auto p-4 font-mono text-sm relative group bg-gray-50">
+    <div 
+      ref={codeWindowRef}
+      className="flex-1 overflow-auto p-4 font-mono text-sm relative group bg-gray-50 scroll-smooth">
       {isGenerating ? (
          <div className="flex items-center justify-center h-full text-slate-400 animate-pulse">
             <span className="flex items-center gap-2"><RefreshCw className="animate-spin" size={16} /> Generating PyGambit model...</span>
@@ -186,6 +188,7 @@ export default function App() {
   const [nashResults, setNashResults] = useState(null);
   const [visualError, setVisualError] = useState(null);
   const nashConsoleRef = useRef(null);
+  const codeWindowRef = useRef(null);
 
   // Auto-scroll Nash console when results appear
   useEffect(() => {
@@ -195,6 +198,15 @@ export default function App() {
       }, 0);
     }
   }, [nashResults]);
+
+  // Auto-scroll code window when code is generated
+  useEffect(() => {
+    if (generatedCode && codeWindowRef.current) {
+      setTimeout(() => {
+        codeWindowRef.current.scrollTop = codeWindowRef.current.scrollHeight;
+      }, 0);
+    }
+  }, [generatedCode]);
 
   // Load presets from server
   const fetchGames = () => {
@@ -399,7 +411,7 @@ export default function App() {
           {/* LEFT COL: Code & Computation */}
           <div className="lg:col-span-7 h-[50vh] flex flex-col gap-6">
             {/* TOP: Generated Code */}
-            <CodeWindow code={generatedCode} isGenerating={isCodeGenerating} />
+            <CodeWindow code={generatedCode} isGenerating={isCodeGenerating} codeWindowRef={codeWindowRef} />
             {/* BOTTOM: Nash Solver */}
             <div className="h-64 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
               {/* Toolbar */}
