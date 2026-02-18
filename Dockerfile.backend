@@ -4,6 +4,9 @@ FROM ubuntu:24.04
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
+    python3-dev \
+    build-essential \
+    git \
     texlive-full \
     pdf2svg \
     && rm -rf /var/lib/apt/lists/*
@@ -12,7 +15,7 @@ WORKDIR /app
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --break-system-packages -r requirements.txt
 
 # Copy the entire application
 COPY . .
