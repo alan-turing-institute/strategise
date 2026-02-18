@@ -399,117 +399,6 @@ export default function App() {
                 </button>
               </div>
 
-              {/* Visualization Settings Control Panel */}
-              {showVizSettings && (
-              <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 grid grid-cols-2 gap-3 text-xs">
-                <div>
-                  <label className="block text-slate-600 font-medium mb-1">Scale Factor</label>
-                  <input 
-                    type="range" 
-                    min="0.1" 
-                    max="2" 
-                    step="0.1" 
-                    value={vizSettings.scale_factor}
-                    onChange={(e) => setVizSettings({...vizSettings, scale_factor: parseFloat(e.target.value)})}
-                    className="w-full h-1 bg-slate-300 rounded-lg"
-                  />
-                  <span className="text-slate-500">{vizSettings.scale_factor.toFixed(1)}</span>
-                </div>
-
-                <div>
-                  <label className="block text-slate-600 font-medium mb-1">Level Spacing</label>
-                  <input 
-                    type="range" 
-                    min="0.1" 
-                    max="2" 
-                    step="0.1" 
-                    value={vizSettings.level_scaling}
-                    onChange={(e) => setVizSettings({...vizSettings, level_scaling: parseFloat(e.target.value)})}
-                    className="w-full h-1 bg-slate-300 rounded-lg"
-                  />
-                  <span className="text-slate-500">{vizSettings.level_scaling.toFixed(1)}</span>
-                </div>
-
-                <div>
-                  <label className="block text-slate-600 font-medium mb-1">Sublevel Spacing</label>
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="2" 
-                    step="0.1" 
-                    value={vizSettings.sublevel_scaling}
-                    onChange={(e) => setVizSettings({...vizSettings, sublevel_scaling: parseFloat(e.target.value)})}
-                    className="w-full h-1 bg-slate-300 rounded-lg"
-                  />
-                  <span className="text-slate-500">{vizSettings.sublevel_scaling.toFixed(1)}</span>
-                </div>
-
-                <div>
-                  <label className="block text-slate-600 font-medium mb-1">Width Scaling</label>
-                  <input 
-                    type="range" 
-                    min="0.5" 
-                    max="2" 
-                    step="0.1" 
-                    value={vizSettings.width_scaling}
-                    onChange={(e) => setVizSettings({...vizSettings, width_scaling: parseFloat(e.target.value)})}
-                    className="w-full h-1 bg-slate-300 rounded-lg"
-                  />
-                  <span className="text-slate-500">{vizSettings.width_scaling.toFixed(1)}</span>
-                </div>
-
-                <div>
-                  <label className="block text-slate-600 font-medium mb-1">Edge Thickness</label>
-                  <input 
-                    type="range" 
-                    min="0.5" 
-                    max="3" 
-                    step="0.1" 
-                    value={vizSettings.edge_thickness}
-                    onChange={(e) => setVizSettings({...vizSettings, edge_thickness: parseFloat(e.target.value)})}
-                    className="w-full h-1 bg-slate-300 rounded-lg"
-                  />
-                  <span className="text-slate-500">{vizSettings.edge_thickness.toFixed(1)}</span>
-                </div>
-
-                <div>
-                  <label className="block text-slate-600 font-medium mb-1">Action Label Position</label>
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="1" 
-                    step="0.1" 
-                    value={vizSettings.action_label_position}
-                    onChange={(e) => setVizSettings({...vizSettings, action_label_position: parseFloat(e.target.value)})}
-                    className="w-full h-1 bg-slate-300 rounded-lg"
-                  />
-                  <span className="text-slate-500">{vizSettings.action_label_position.toFixed(1)}</span>
-                </div>
-
-                <div>
-                  <label className="block text-slate-600 font-medium mb-1">Terminal Depth</label>
-                  <button
-                    onClick={() => setVizSettings({...vizSettings, shared_terminal_depth: !vizSettings.shared_terminal_depth})}
-                    className={`w-full px-2 py-1 rounded text-xs font-medium transition-colors ${vizSettings.shared_terminal_depth ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}`}
-                  >
-                    {vizSettings.shared_terminal_depth ? 'Aligned' : 'Default'}
-                  </button>
-                </div>
-
-                <div>
-                  <label className="block text-slate-600 font-medium mb-1">Color Scheme</label>
-                  <select 
-                    value={vizSettings.color_scheme}
-                    onChange={(e) => setVizSettings({...vizSettings, color_scheme: e.target.value})}
-                    className="w-full px-2 py-1 rounded text-xs border border-slate-300 bg-white text-slate-700"
-                  >
-                    <option value="gambit">Gambit</option>
-                    <option value="default">Default</option>
-                  </select>
-                </div>
-              </div>
-              )}
-
               <div className="flex-1 relative bg-slate-50/30 h-[50vh]">
                 <GameTreeVisualizer svgContent={visualSvg} show={showVisual} isLoading={isVisualLoading} />
               </div>
@@ -517,6 +406,128 @@ export default function App() {
           </div>
         </div>
       </main>
+
+      {/* Visualization Settings Modal */}
+      {showVizSettings && (
+        <div className="fixed top-24 right-8 bg-white rounded-lg shadow-xl border border-slate-200 w-80 max-h-[70vh] overflow-y-auto z-50">
+          <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200 sticky top-0">
+            <span className="font-semibold text-slate-700 text-sm">Settings</span>
+            <button
+              onClick={() => setShowVizSettings(false)}
+              className="p-1 hover:bg-slate-200 rounded transition-colors"
+            >
+              <X size={16} className="text-slate-600" />
+            </button>
+          </div>
+          <div className="px-4 py-3 space-y-3 text-xs">
+            <div>
+              <label className="block text-slate-600 font-medium mb-1">Scale Factor</label>
+              <input 
+                type="range" 
+                min="0.1" 
+                max="2" 
+                step="0.1" 
+                value={vizSettings.scale_factor}
+                onChange={(e) => setVizSettings({...vizSettings, scale_factor: parseFloat(e.target.value)})}
+                className="w-full h-1.5 bg-slate-300 rounded-lg"
+              />
+              <span className="text-slate-500">{vizSettings.scale_factor.toFixed(1)}</span>
+            </div>
+
+            <div>
+              <label className="block text-slate-600 font-medium mb-1">Level Spacing</label>
+              <input 
+                type="range" 
+                min="0.1" 
+                max="2" 
+                step="0.1" 
+                value={vizSettings.level_scaling}
+                onChange={(e) => setVizSettings({...vizSettings, level_scaling: parseFloat(e.target.value)})}
+                className="w-full h-1.5 bg-slate-300 rounded-lg"
+              />
+              <span className="text-slate-500">{vizSettings.level_scaling.toFixed(1)}</span>
+            </div>
+
+            <div>
+              <label className="block text-slate-600 font-medium mb-1">Sublevel Spacing</label>
+              <input 
+                type="range" 
+                min="0" 
+                max="2" 
+                step="0.1" 
+                value={vizSettings.sublevel_scaling}
+                onChange={(e) => setVizSettings({...vizSettings, sublevel_scaling: parseFloat(e.target.value)})}
+                className="w-full h-1.5 bg-slate-300 rounded-lg"
+              />
+              <span className="text-slate-500">{vizSettings.sublevel_scaling.toFixed(1)}</span>
+            </div>
+
+            <div>
+              <label className="block text-slate-600 font-medium mb-1">Width Scaling</label>
+              <input 
+                type="range" 
+                min="0.5" 
+                max="2" 
+                step="0.1" 
+                value={vizSettings.width_scaling}
+                onChange={(e) => setVizSettings({...vizSettings, width_scaling: parseFloat(e.target.value)})}
+                className="w-full h-1.5 bg-slate-300 rounded-lg"
+              />
+              <span className="text-slate-500">{vizSettings.width_scaling.toFixed(1)}</span>
+            </div>
+
+            <div>
+              <label className="block text-slate-600 font-medium mb-1">Edge Thickness</label>
+              <input 
+                type="range" 
+                min="0.5" 
+                max="3" 
+                step="0.1" 
+                value={vizSettings.edge_thickness}
+                onChange={(e) => setVizSettings({...vizSettings, edge_thickness: parseFloat(e.target.value)})}
+                className="w-full h-1.5 bg-slate-300 rounded-lg"
+              />
+              <span className="text-slate-500">{vizSettings.edge_thickness.toFixed(1)}</span>
+            </div>
+
+            <div>
+              <label className="block text-slate-600 font-medium mb-1">Action Label Position</label>
+              <input 
+                type="range" 
+                min="0" 
+                max="1" 
+                step="0.1" 
+                value={vizSettings.action_label_position}
+                onChange={(e) => setVizSettings({...vizSettings, action_label_position: parseFloat(e.target.value)})}
+                className="w-full h-1.5 bg-slate-300 rounded-lg"
+              />
+              <span className="text-slate-500">{vizSettings.action_label_position.toFixed(1)}</span>
+            </div>
+
+            <div>
+              <label className="block text-slate-600 font-medium mb-1">Terminal Depth</label>
+              <button
+                onClick={() => setVizSettings({...vizSettings, shared_terminal_depth: !vizSettings.shared_terminal_depth})}
+                className={`w-full px-2 py-1 rounded text-xs font-medium transition-colors ${vizSettings.shared_terminal_depth ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}`}
+              >
+                {vizSettings.shared_terminal_depth ? 'Aligned' : 'Default'}
+              </button>
+            </div>
+
+            <div>
+              <label className="block text-slate-600 font-medium mb-1">Color Scheme</label>
+              <select 
+                value={vizSettings.color_scheme}
+                onChange={(e) => setVizSettings({...vizSettings, color_scheme: e.target.value})}
+                className="w-full px-2 py-1 rounded text-xs border border-slate-300 bg-white text-slate-700"
+              >
+                <option value="gambit">Gambit</option>
+                <option value="default">Default</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Fullscreen SVG Modal */}
       {showFullscreenSvg && visualSvg && (
