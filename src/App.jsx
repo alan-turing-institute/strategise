@@ -123,7 +123,50 @@ export default function App() {
     color_scheme: "gambit"
   });
   const [showVizSettings, setShowVizSettings] = useState(false);
+  const [vizSettingsPos, setVizSettingsPos] = useState({ x: 0, y: 0 });
+  const [isDraggingSettings, setIsDraggingSettings] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   
+  const handleSettingsDragStart = (e) => {
+    setIsDraggingSettings(true);
+    setDragOffset({
+      x: e.clientX - vizSettingsPos.x,
+      y: e.clientY - vizSettingsPos.y
+    });
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isDraggingSettings) return;
+      setVizSettingsPos({
+        x: e.clientX - dragOffset.x,
+        y: e.clientY - dragOffset.y
+      });
+    };
+
+    const handleMouseUp = () => {
+      setIsDraggingSettings(false);
+    };
+
+    if (isDraggingSettings) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDraggingSettings, dragOffset]);
+
+  useEffect(() => {
+    if (showVizSettings) {
+      const centerX = (window.innerWidth - 320) / 2;
+      const centerY = (window.innerHeight - 400) / 2;
+      setVizSettingsPos({ x: centerX, y: centerY });
+    }
+  }, [showVizSettings]);
+
   const [isComputingNash, setIsComputingNash] = useState(false);
   const [nashAlgorithm, setNashAlgorithm] = useState("enumpure");
   const [nashResults, setNashResults] = useState(null);
@@ -409,8 +452,18 @@ export default function App() {
 
       {/* Visualization Settings Modal */}
       {showVizSettings && (
-        <div className="fixed top-24 right-8 bg-white rounded-lg shadow-xl border border-slate-200 w-80 max-h-[70vh] overflow-y-auto z-50">
-          <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200 sticky top-0">
+        <div 
+          className="fixed bg-white rounded-lg shadow-xl border border-slate-200 w-80 max-h-[70vh] overflow-y-auto z-50"
+          style={{
+            left: `${vizSettingsPos.x}px`,
+            top: `${vizSettingsPos.y}px`,
+            cursor: isDraggingSettings ? 'grabbing' : 'default'
+          }}
+        >
+          <div 
+            className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200 sticky top-0 cursor-grab hover:bg-slate-100 transition-colors"
+            onMouseDown={handleSettingsDragStart}
+          >
             <span className="font-semibold text-slate-700 text-sm">Settings</span>
             <button
               onClick={() => setShowVizSettings(false)}
