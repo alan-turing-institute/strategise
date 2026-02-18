@@ -8,13 +8,13 @@ This is a code bundle for GameInterpreter Webapp.
 
 The app loads example games from the GameInterpreter project structure:
 
-### Game Descriptions
-- **Location**: `GameInterpreter/Dataset/Imperfect Information Games/` and `GameInterpreter/Dataset/Perfect Information Games/`
+### Example Game Descriptions
+- **Location**: From GameInterpreter V1 experiment [Dataset](https://github.com/zczlsde/GameInterpreter/tree/main/Dataset) e.g. `GameInterpreter/Dataset/Imperfect Information Games/` and `GameInterpreter/Dataset/Perfect Information Games/`
 - **Format**: Text files (*.txt) containing natural language game descriptions
 - **Used by**: "Load Example..." dropdown in the app
 
-### Generated Python Code
-- **Location**: `GameInterpreter/Output/Setting D/GPT-4o/[Imperfect|Perfect] Information Games/<game_name>/Correct/1.txt`
+### Example pre-computed Python Code
+- **Location**: From GameInterpreter V1 experiment [Setting D with GPT-4o](https://github.com/zczlsde/GameInterpreter/tree/main/Output/Setting%20D/GPT-4o) e.g. `GameInterpreter/Output/Setting D/GPT-4o/[Imperfect|Perfect] Information Games/<game_name>/Correct/1.txt`
 - **Format**: Text files containing multiple Python code blocks (separated by ` ``` `)
 - **Extraction**: The app uses the **second code block** from each file, which contains the complete game creation script
 
