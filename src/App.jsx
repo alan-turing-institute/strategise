@@ -185,6 +185,16 @@ export default function App() {
   const [nashAlgorithm, setNashAlgorithm] = useState("enumpure");
   const [nashResults, setNashResults] = useState(null);
   const [visualError, setVisualError] = useState(null);
+  const nashConsoleRef = useRef(null);
+
+  // Auto-scroll Nash console when results appear
+  useEffect(() => {
+    if (nashResults && nashConsoleRef.current) {
+      setTimeout(() => {
+        nashConsoleRef.current.scrollTop = nashConsoleRef.current.scrollHeight;
+      }, 0);
+    }
+  }, [nashResults]);
 
   // Load presets from server
   const fetchGames = () => {
@@ -432,7 +442,10 @@ export default function App() {
               </div>
 
               {/* Console Output */}
-              <div className="flex-1 p-4 font-mono text-sm overflow-y-auto bg-slate-50">
+              <div 
+                ref={nashConsoleRef}
+                className="flex-1 p-4 font-mono text-sm overflow-y-auto bg-slate-50 scroll-smooth"
+              >
                 {!generatedCode ? (
                   <div className="text-slate-600 italic">Waiting for game model generation...</div>
                 ) : !nashResults && !isComputingNash ? (
