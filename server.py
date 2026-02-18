@@ -18,17 +18,35 @@ DATA_DIR = os.path.join(BASE_DIR, 'game_data')
 def extract_python_code_from_text(text_content):
     """
     Extract Python code from a text file that contains formatted Python code blocks.
-    Looks for lines between triple backticks (```python and ```)
+    Only uses the second code block which contains the main game creation script.
+    Removes any file write/save calls since the game object needs to be used for visualization.
     """
     # Find all code blocks between ```python and ```
     pattern = r'```python\n(.*?)\n```'
     matches = re.findall(pattern, text_content, re.DOTALL)
     
-    if matches:
-        # Join all code blocks with newlines
-        return '\n\n'.join(matches)
+    # Use only the second code block (index 1)
+    if len(matches) >= 2:
+        code = matches[1]
+    elif len(matches) == 1:
+        code = matches[0]
+    else:
+        return ""
     
-    return ""
+    # Remove any lines that write/save the game to file
+    lines = code.split('\n')
+    filtered_lines = []
+    for line in lines:
+        # Skip lines that contain write, save, or export operations
+        stripped = line.strip()
+        if not any(x in stripped for x in ['g.write(', '.write(', 'g.save(', '.save(', 'efg = ', 'export', '.to_file', '.dump', '# Save the EFG']):
+            filtered_lines.append(line)
+    
+    # Remove trailing blank lines
+    while filtered_lines and not filtered_lines[-1].strip():
+        filtered_lines.pop()
+    
+    return '\n'.join(filtered_lines)
 
 def find_output_file(game_id, output_base_path):
     """
