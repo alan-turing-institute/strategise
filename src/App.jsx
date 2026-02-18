@@ -3,7 +3,7 @@ import {
   Play, 
   Code as CodeIcon, 
   Share2, 
-  Network, 
+  Network,
   Cpu, 
   Terminal, 
   ChevronDown, 
@@ -371,36 +371,32 @@ export default function App() {
           {/* RIGHT COL: Visualizer */}
           <div className="lg:col-span-5 h-[60vh] flex flex-col gap-4">
             <div className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50">
-                <div className="flex items-center gap-2">
-                  <Network size={16} className="text-indigo-500" />
-                  <span className="font-semibold text-slate-700 text-sm">Game Tree Visualization</span>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleVisualize}
-                    disabled={!generatedCode}
-                    className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded text-xs font-medium text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-colors disabled:opacity-50"
-                  >
-                    <Maximize2 size={12} />
-                    Draw via draw_tree
-                  </button>
-                  <button
-                    onClick={() => setShowVizSettings(!showVizSettings)}
-                    className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded text-xs font-medium text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-colors"
-                    title="Toggle visualization settings"
-                  >
-                    <Settings size={12} />
-                  </button>
-                  <button
-                    onClick={() => setShowFullscreenSvg(true)}
-                    disabled={!visualSvg}
-                    className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded text-xs font-medium text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-colors disabled:opacity-50"
-                    title="Expand fullscreen"
-                  >
-                    <Maximize2 size={12} />
-                  </button>
-                </div>
+              <div className="flex gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50">
+                <button
+                  onClick={handleVisualize}
+                  disabled={!generatedCode}
+                  className={`flex items-center justify-center gap-2 flex-1 py-3 rounded-lg font-semibold text-white shadow-lg shadow-blue-500/30 transition-all transform active:scale-95 ${
+                    !generatedCode ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 hover:-translate-y-0.5'
+                  }`}
+                >
+                  <Zap size={16} className="fill-blue-400 text-white" />
+                  Draw Game
+                </button>
+                <button
+                  onClick={() => setShowVizSettings(!showVizSettings)}
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-slate-700 bg-slate-200 hover:bg-slate-300 transition-colors"
+                  title="Toggle visualization settings"
+                >
+                  <Settings size={16} />
+                </button>
+                <button
+                  onClick={() => setShowFullscreenSvg(true)}
+                  disabled={!visualSvg}
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold text-slate-700 bg-slate-200 hover:bg-slate-300 transition-colors disabled:opacity-50"
+                  title="Expand fullscreen"
+                >
+                  <Maximize2 size={16} />
+                </button>
               </div>
 
               {/* Visualization Settings Control Panel */}
