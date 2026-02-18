@@ -9,7 +9,9 @@ import {
   ChevronDown, 
   Maximize2,
   RefreshCw,
-  Zap,
+  Sparkles,
+  Database,
+  TreeDeciduous,
   BookOpen,
   X,
   Settings
@@ -62,7 +64,7 @@ const CodeWindow = ({ code, isGenerating }) => (
         </SyntaxHighlighter>
       ) : (
         <div className="flex flex-col items-center justify-center h-full text-slate-400">
-           <Zap size={32} className="mb-2 opacity-50"/>
+           <CodeIcon size={32} className="mb-2 opacity-50"/>
            <p>Enter a description and generate code to view it here.</p>
         </div>
       )}
@@ -334,27 +336,36 @@ export default function App() {
               </div>
             </div>
 
-            <div className="w-full md:w-64 flex flex-col justify-end gap-3">
+            <div className="w-full md:w-64 flex flex-col justify-end gap-3">   
+              <button 
+                disabled={true}
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-white bg-slate-400 cursor-not-allowed opacity-60 transition-all"
+              >
+                <Sparkles size={20} className="text-slate-300" /> 
+                Generate Code
+              </button>
+              <p className="text-xs text-slate-500 text-center leading-relaxed px-2">
+                Uses GameInterpreter LLM pipeline to construct a structured <code className="bg-slate-100 px-1 rounded text-slate-700">pygambit.Game</code> object.
+              </p>
               <div className="flex flex-col gap-2">
-                <button 
+                <button
                   onClick={handleGenerateCode}
                   disabled={!prompt || isCodeGenerating}
-                  className={`flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-white shadow-lg shadow-blue-500/30 transition-all transform active:scale-95 ${
-                    !prompt ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 hover:-translate-y-0.5'
-                  }`}
+                  className={`flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-white shadow-lg shadow-blue-500/30 transition-all transform active:scale-95 ${!prompt ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 hover:-translate-y-0.5'
+                    }`}
                 >
                   {isCodeGenerating ? (
-                     <RefreshCw className="animate-spin" size={20} />
+                    <RefreshCw className="animate-spin" size={20} />
                   ) : (
-                     <Zap size={20} className="fill-blue-400 text-white" /> 
+                    <Database size={20} className="text-white" />
                   )}
                   V1 code
                 </button>
                 <p className="text-xs text-slate-500 text-center leading-relaxed px-2">
                   Code from GameInterpreter V1 Experiment, see{' '}
-                  <a 
-                    href="https://github.com/edwardchalstrey1/game?tab=readme-ov-file#example-games-data-source" 
-                    target="_blank" 
+                  <a
+                    href="https://github.com/edwardchalstrey1/game?tab=readme-ov-file#example-games-data-source"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-700 underline"
                   >
@@ -362,16 +373,6 @@ export default function App() {
                   </a>
                 </p>
               </div>
-              <button 
-                disabled={true}
-                className="flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-white bg-slate-400 cursor-not-allowed opacity-60 transition-all"
-              >
-                <Zap size={20} className="fill-slate-300 text-slate-300" /> 
-                Generate Code
-              </button>
-              <p className="text-xs text-slate-500 text-center leading-relaxed px-2">
-                Uses GameInterpreter LLM pipeline to construct a structured <code className="bg-slate-100 px-1 rounded text-slate-700">pygambit.Game</code> object.
-              </p>
             </div>
           </div>
         </section>
@@ -465,7 +466,7 @@ export default function App() {
                     !generatedCode ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 hover:-translate-y-0.5'
                   }`}
                 >
-                  <Zap size={16} className="fill-blue-400 text-white" />
+                  <TreeDeciduous size={16} className="text-white" />
                   Draw Game
                 </button>
                 <button
