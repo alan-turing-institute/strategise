@@ -6,7 +6,7 @@ This is a code bundle for GameInterpreter Webapp.
 
 ## Example Games Data Source
 
-The app loads example games from the GameInterpreter project structure:
+The app loads example games and pre-computed game codes from the [GameInterpreter V1 experiment](https://github.com/zczlsde/GameInterpreter) associated with [From Natural Language to Extensive-Form Game Representations](https://arxiv.org/html/2501.17282v1).
 
 ### Example Game Descriptions
 - **Location**: From GameInterpreter V1 experiment [Dataset](https://github.com/zczlsde/GameInterpreter/tree/main/Dataset) e.g. `GameInterpreter/Dataset/Imperfect Information Games/` and `GameInterpreter/Dataset/Perfect Information Games/`
