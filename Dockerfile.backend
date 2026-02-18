@@ -1,0 +1,22 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies: LaTeX and pdf2svg
+RUN apt-get update && apt-get install -y \
+    texlive-full \
+    pdf2svg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the entire application
+COPY . .
+
+# Expose Flask port
+EXPOSE 5000
+
+# Run Flask development server
+CMD ["python", "server.py"]
