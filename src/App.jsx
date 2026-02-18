@@ -76,7 +76,7 @@ const CodeWindow = ({ code, isGenerating }) => (
 const GameTreeVisualizer = ({ svgContent, show, isLoading, error }) => {
   if (!show) return (
     <div className="flex flex-col items-center justify-center h-full text-slate-400 bg-slate-50/50">
-       <p className="text-sm">Click "Visualize Game Tree" to render</p>
+       <p className="text-sm">Click "Draw Game" to render</p>
     </div>
   );
 
