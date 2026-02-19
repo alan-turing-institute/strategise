@@ -267,7 +267,10 @@ export default function App() {
       })
       .then(res => {
         if (!res.ok) {
-          return res.json().then(err => { throw new Error(err.error || 'Failed to generate visualization') });
+          return res.json().then(err => { 
+            const msg = err.details ? `${err.error}\n\n${err.details}` : err.error;
+            throw new Error(msg || 'Failed to generate visualization');
+          });
         }
         return res.json();
       })

@@ -1,0 +1,27 @@
+FROM ubuntu:24.04
+
+# Install Python and system dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-dev \
+    build-essential \
+    git \
+    texlive-full \
+    pdf2svg \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir --break-system-packages -r requirements.txt
+
+# Copy the entire application
+COPY . .
+
+# Expose Flask port
+EXPOSE 5000
+
+# Run Flask development server
+CMD ["python3", "server.py"]

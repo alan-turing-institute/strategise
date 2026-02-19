@@ -54,6 +54,49 @@ The extracted Python code automatically:
 
 ## Running the app locally
 
+### Option 1: Docker (Recommended)
+
+Docker provides a consistent, isolated environment with all dependencies pre-installed. This is the easiest way to get started.
+Follow the steps below; there's also more info on Docker and truobleshooting in [DOCKER.md](DOCKER.md).
+
+**Prerequisites:**
+- Install [Docker Desktop](https://www.docker.com/products/docker-desktop) for your OS.
+
+**Steps:**
+
+1. Build and start the application:
+   - macOS:
+        ```bash
+        docker compose up --build
+        ```
+    - Linux
+        ```bash
+        docker-compose up --build
+        ```  
+
+2. Open your browser to `http://localhost:5173`
+
+    - The backend API runs on `http://localhost:5000` (automatic)
+
+3. To stop the containers:
+   - macOS:
+        ```bash
+        docker compose down
+        ```
+    - Linux
+        ```bash
+        docker-compose down
+        ```  
+
+**Notes:**
+- First build takes 2-3 minutes (installs LaTeX ~1.5GB)
+- Subsequent runs are instant
+- Code changes auto-reload in both frontend and backend
+- No need to manually install LaTeX, pdf2svg, or Python dependencies
+
+### Option 2: Manual Setup
+
+**Prerequisites:**
 - Run `npm i` to install the JS dependencies.
 - Install LaTeX
     - macOS:
@@ -61,7 +104,6 @@ The extracted Python code automatically:
         - or `brew install --cask mactex`
     - Ubuntu:
         - `sudo apt-get install texlive-full`
-    - Windows: Install [MiKTeX](https://miktex.org/download)
 - Install "pdf2svg"
     - macOS:
         - `brew install pdf2svg`
@@ -71,6 +113,8 @@ The extracted Python code automatically:
     - `conda create -n gameint python=3.14`
     - `conda activate gameint`
     - `pip install -r requirements.txt`
+
+**Starting the application:**
 - In two separate terminal tabs:
     - Run `python server.py` to start the Flask backend.
     - Run `npm run dev` to start the development server.
