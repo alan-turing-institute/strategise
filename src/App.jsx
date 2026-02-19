@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Play, 
+  Square,
   Code as CodeIcon, 
   Share2, 
   Network,
@@ -186,9 +187,11 @@ export default function App() {
   const [isComputingNash, setIsComputingNash] = useState(false);
   const [nashAlgorithm, setNashAlgorithm] = useState("enumpure");
   const [nashResults, setNashResults] = useState(null);
+  const [computationTaskId, setComputationTaskId] = useState(null);
   const [visualError, setVisualError] = useState(null);
   const nashConsoleRef = useRef(null);
   const codeWindowRef = useRef(null);
+  const activeTaskRef = useRef(null);
 
   // Auto-scroll Nash console when results appear
   useEffect(() => {
@@ -293,11 +296,14 @@ export default function App() {
   const handleComputeNash = () => {
     setIsComputingNash(true);
     setNashResults(null);
+    const taskId = Math.random().toString(36).substring(7);
+    setComputationTaskId(taskId);
+    activeTaskRef.current = taskId;
 
     fetch('http://127.0.0.1:5000/compute-nash', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code: generatedCode, algorithm: nashAlgorithm })
+      body: JSON.stringify({ code: generatedCode, algorithm: nashAlgorithm, task_id: taskId })
     })
     .then(res => {
       if (!res.ok) {
@@ -306,15 +312,39 @@ export default function App() {
       return res.json();
     })
     .then(data => {
-      setNashResults(data.results || "No results returned from solver.");
+      if (activeTaskRef.current === taskId) {
+        setNashResults(data.results || "No results returned from solver.");
+      }
     })
     .catch(err => {
       console.error(err);
-      setNashResults(`Error: ${err.message}`);
+      if (activeTaskRef.current === taskId) {
+        setNashResults(`Error: ${err.message}`);
+      }
     })
     .finally(() => {
-      setIsComputingNash(false);
+      if (activeTaskRef.current === taskId) {
+        setIsComputingNash(false);
+        setComputationTaskId(null);
+        activeTaskRef.current = null;
+      }
     });
+  };
+
+  const handleStopNash = () => {
+    if (computationTaskId) {
+      fetch('http://127.0.0.1:5000/kill-nash', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task_id: computationTaskId })
+      })
+      .catch(err => console.error("Failed to stop task:", err));
+      
+      activeTaskRef.current = null;
+      setIsComputingNash(false);
+      setNashResults(null);
+      setComputationTaskId(null);
+    }
   };
 
   return (
@@ -447,12 +477,14 @@ export default function App() {
                   </div>
                 </div>
                 <button 
-                  onClick={handleComputeNash}
-                  disabled={!generatedCode || isComputingNash}
-                  className="flex items-center gap-2 px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={isComputingNash ? handleStopNash : handleComputeNash}
+                  disabled={!generatedCode || (isComputingNash && !computationTaskId)}
+                  className={`flex items-center gap-2 px-4 py-1.5 rounded text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                    isComputingNash ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                  }`}
                 >
-                  {isComputingNash ? 'Running...' : 'Run Solver'}
-                  <Play size={10} className="fill-current" />
+                  {isComputingNash ? 'Stop' : 'Run Solver'}
+                  {isComputingNash ? <Square size={10} className="fill-current" /> : <Play size={10} className="fill-current" />}
                 </button>
               </div>
 

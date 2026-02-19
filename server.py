@@ -9,12 +9,64 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import pygambit as gbt
 from draw_tree import generate_pdf
+import multiprocessing
 
 app = Flask(__name__)
 CORS(app)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, 'game_data')
+
+RUNNING_TASKS = {}
+
+def solver_worker(code, algorithm, queue):
+    try:
+        # Execute the code to get the 'game' object
+        local_scope = {}
+        # Inject gbt into globals to support code that assumes 'import pygambit as gbt' or uses gbt directly
+        exec(code, {'gbt': gbt}, local_scope)
+        game = local_scope.get('game')
+        
+        if game is None:
+            game = local_scope.get('g')
+
+        if not isinstance(game, gbt.Game):
+            queue.put({"error": "Code did not produce a 'game' variable of type pygambit.Game"})
+            return
+
+        # Select and run the solver
+        solvers = {
+            "enumpure": gbt.nash.enumpure_solve,
+            "enummixed": gbt.nash.enummixed_solve,
+            "lp": gbt.nash.lp_solve,
+            "lcp": gbt.nash.lcp_solve,
+            "liap": gbt.nash.liap_solve,
+            "logit": gbt.nash.logit_solve,
+            "simpdiv": gbt.nash.simpdiv_solve,
+            "ipa": gbt.nash.ipa_solve,
+            "gnm": gbt.nash.gnm_solve,
+        }
+        solver = solvers.get(algorithm)
+        if not solver:
+            queue.put({"error": f"Unknown algorithm: {algorithm}"})
+            return
+
+        solver_output = solver(game)
+
+        # External solvers return a result object with an .equilibria attribute.
+        # Internal python solvers can return a list of profiles, or a single profile.
+        if hasattr(solver_output, 'equilibria'):
+            equilibria = solver_output.equilibria
+        elif isinstance(solver_output, list):
+            equilibria = solver_output
+        else: # Assuming a single NashProfile object was returned
+            equilibria = [solver_output]
+
+        results = "\n".join([f"NE {i+1}: {eq}" for i, eq in enumerate(equilibria)])
+        queue.put({"results": results or "No equilibria found by this solver."})
+
+    except Exception as e:
+        queue.put({"error": str(e)})
 
 def extract_python_code_from_text(text_content):
     """
@@ -241,52 +293,44 @@ def compute_nash():
     data = request.json
     code = data.get('code', '')
     algorithm = data.get('algorithm', 'enumpure')
+    task_id = data.get('task_id')
 
-    try:
-        # Execute the code to get the 'game' object
-        local_scope = {}
-        exec(code, {'gbt': gbt}, local_scope)
-        game = local_scope.get('game')
+    if not task_id:
+        return jsonify({"error": "task_id is required"}), 400
+
+    queue = multiprocessing.Queue()
+    process = multiprocessing.Process(target=solver_worker, args=(code, algorithm, queue))
+    
+    RUNNING_TASKS[task_id] = process
+    process.start()
+    process.join()
+    
+    # Cleanup
+    if task_id in RUNNING_TASKS:
+        del RUNNING_TASKS[task_id]
         
-        if game is None:
-            game = local_scope.get('g')
+    if process.exitcode == 0:
+        if not queue.empty():
+            return jsonify(queue.get())
+        else:
+            return jsonify({"error": "Solver finished without output"}), 500
+    else:
+        return jsonify({"error": "Computation terminated by user"}), 400
 
-        if not isinstance(game, gbt.Game):
-            return jsonify({"error": "Code did not produce a 'game' variable of type pygambit.Game"}), 400
-
-        # Select and run the solver
-        solvers = {
-            "enumpure": gbt.nash.enumpure_solve,
-            "enummixed": gbt.nash.enummixed_solve,
-            "lp": gbt.nash.lp_solve,
-            "lcp": gbt.nash.lcp_solve,
-            "liap": gbt.nash.liap_solve,
-            "logit": gbt.nash.logit_solve,
-            "simpdiv": gbt.nash.simpdiv_solve,
-            "ipa": gbt.nash.ipa_solve,
-            "gnm": gbt.nash.gnm_solve,
-        }
-        solver = solvers.get(algorithm)
-        if not solver:
-            return jsonify({"error": f"Unknown algorithm: {algorithm}"}), 400
-
-        solver_output = solver(game)
-
-        # External solvers return a result object with an .equilibria attribute.
-        # Internal python solvers can return a list of profiles, or a single profile.
-        if hasattr(solver_output, 'equilibria'):
-            equilibria = solver_output.equilibria
-        elif isinstance(solver_output, list):
-            equilibria = solver_output
-        else: # Assuming a single NashProfile object was returned
-            equilibria = [solver_output]
-
-        results = "\n".join([f"NE {i+1}: {eq}" for i, eq in enumerate(equilibria)])
-        return jsonify({"results": results or "No equilibria found by this solver."})
-
-    except Exception as e:
-        print(f"Server error in /compute-nash: {e}", file=sys.stderr)
-        return jsonify({"error": str(e)}), 500
+@app.route('/kill-nash', methods=['POST'])
+def kill_nash():
+    data = request.json
+    task_id = data.get('task_id')
+    
+    if task_id and task_id in RUNNING_TASKS:
+        process = RUNNING_TASKS[task_id]
+        if process.is_alive():
+            process.terminate()
+            return jsonify({"status": "terminated"})
+        else:
+            return jsonify({"status": "already_finished"})
+            
+    return jsonify({"error": "Task not found"}), 404
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
