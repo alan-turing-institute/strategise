@@ -35,6 +35,8 @@ That's it! The app will be running with:
 
 ## Common Commands
 
+MAC USERS: Replace `docker-compose` in the commands below with `docker compose`.
+
 ### Start the containers (subsequent times - no rebuild)
 ```bash
 docker-compose up
