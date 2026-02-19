@@ -10,7 +10,7 @@ services:
       - FLASK_APP=server.py
     volumes:
       - .:/app
-    command: python server.py
+    command: python3 server.py
 
   web:
     build:
