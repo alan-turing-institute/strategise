@@ -57,6 +57,7 @@ The extracted Python code automatically:
 ### Option 1: Docker (Recommended)
 
 Docker provides a consistent, isolated environment with all dependencies pre-installed. This is the easiest way to get started.
+Follow the steps below; there's also more info on Docker and truobleshooting in [DOCKER.md](DOCKER.md).
 
 **Prerequisites:**
 - Install [Docker Desktop](https://www.docker.com/products/docker-desktop) for your OS.
@@ -78,9 +79,14 @@ Docker provides a consistent, isolated environment with all dependencies pre-ins
     - The backend API runs on `http://localhost:5000` (automatic)
 
 3. To stop the containers:
-   ```bash
-   docker-compose down
-   ```
+   - macOS:
+        ```bash
+        docker compose down
+        ```
+    - Linux
+        ```bash
+        docker-compose down
+        ```  
 
 **Notes:**
 - First build takes 2-3 minutes (installs LaTeX ~1.5GB)
