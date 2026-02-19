@@ -493,7 +493,7 @@ export default function App() {
                   V1 code
                 </button>
                 <p className="text-xs text-slate-500 text-center leading-relaxed px-2">
-                  Code from GameInterpreter V1 Experiment, see{' '}
+                  Code from GameInterpreter V1 experiment Setting D with GPT4o, see{' '}
                   <a
                     href="https://github.com/edwardchalstrey1/game?tab=readme-ov-file#example-games-data-source"
                     target="_blank"
@@ -502,6 +502,7 @@ export default function App() {
                   >
                     details
                   </a>
+                  .
                 </p>
               </div>
             </div>
