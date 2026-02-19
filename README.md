@@ -16,7 +16,7 @@ The app loads example games and pre-computed game codes from the [GameInterprete
 ### Example pre-computed Python Code
 - **Location**: From GameInterpreter V1 experiment [Setting D with GPT-4o](https://github.com/zczlsde/GameInterpreter/tree/main/Output/Setting%20D/GPT-4o) e.g. `GameInterpreter/Output/Setting D/GPT-4o/[Imperfect|Perfect] Information Games/<game_name>/Correct/1.txt`
 - **Format**: Text files containing multiple Python code blocks (separated by ` ``` `)
-- **Extraction**: The app uses the **second code block** from each file, which contains the complete game creation script
+- **Extraction**: The app loads all `.txt` files found in the `Correct` directory for a game. It uses the **second code block** from each file, which contains the complete game creation script.
 
 ### Directory Structure Example
 ```

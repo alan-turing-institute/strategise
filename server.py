@@ -101,9 +101,9 @@ def extract_python_code_from_text(text_content):
     
     return '\n'.join(filtered_lines)
 
-def find_output_file(game_id, output_base_path):
+def find_output_directory(game_id, output_base_path):
     """
-    Find the 1.txt output file for a given game.
+    Find the 'Correct' directory for a given game.
     Handles directory name conversions from dataset pathnames to output directory names.
     """
     # Convert underscores to spaces
@@ -114,10 +114,10 @@ def find_output_file(game_id, output_base_path):
     if 'five' in game_dir_name.lower():
         game_dir_name = game_dir_name.replace('five', '5')
     
-    output_file = os.path.join(output_base_path, game_dir_name, 'Correct', '1.txt')
+    candidate_dir = os.path.join(output_base_path, game_dir_name, 'Correct')
     
-    if os.path.exists(output_file):
-        return output_file
+    if os.path.exists(candidate_dir):
+        return candidate_dir
     
     # If not found, try listing available directories and do a fuzzy match
     output_parent = output_base_path
@@ -129,9 +129,9 @@ def find_output_file(game_id, output_base_path):
         for dir_name in available_dirs:
             normalized_dir = dir_name.lower().replace('-', ' ').replace(',', '').replace('(', '').replace(')', '')
             if normalized_game_name in normalized_dir or normalized_dir in normalized_game_name:
-                candidate_file = os.path.join(output_parent, dir_name, 'Correct', '1.txt')
-                if os.path.exists(candidate_file):
-                    return candidate_file
+                candidate_dir = os.path.join(output_parent, dir_name, 'Correct')
+                if os.path.exists(candidate_dir):
+                    return candidate_dir
     
     return None
 
@@ -168,27 +168,36 @@ def get_dataset_games():
             with open(desc_file, 'r') as f:
                 description = f.read()
             
-            # Extract Python code from the output file
-            mock_code = ""
-            output_game_path = find_output_file(game_id, output_base_path)
+            # Extract Python code from the output files
+            code_variants = []
+            output_dir = find_output_directory(game_id, output_base_path)
             
-            if output_game_path and os.path.exists(output_game_path):
+            if output_dir:
                 try:
-                    with open(output_game_path, 'r') as f:
-                        output_content = f.read()
-                        mock_code = extract_python_code_from_text(output_content)
+                    # Find all txt files
+                    txt_files = glob.glob(os.path.join(output_dir, '*.txt'))
+                    # Sort numerically if possible (e.g. 1.txt, 2.txt)
+                    txt_files.sort(key=lambda f: int(os.path.splitext(os.path.basename(f))[0]) if os.path.splitext(os.path.basename(f))[0].isdigit() else os.path.basename(f))
+                    
+                    for txt_file in txt_files:
+                        with open(txt_file, 'r') as f:
+                            output_content = f.read()
+                            extracted = extract_python_code_from_text(output_content)
+                            if extracted:
+                                code_variants.append(extracted)
                 except Exception as e:
-                    print(f"Error reading {output_game_path}: {e}", file=sys.stderr)
+                    print(f"Error reading from {output_dir}: {e}", file=sys.stderr)
             
-            # Only add game if we found the code
-            if mock_code:
+            # Only add game if we found at least one code variant
+            if code_variants:
                 # Use the directory name as the display name (convert underscores to spaces)
                 display_name = game_id.replace('_', ' ')
                 games.append({
                     "id": game_id,
                     "name": display_name,
                     "description": description,
-                    "mockCode": mock_code,
+                    "mockCode": code_variants[0],
+                    "codeVariants": code_variants,
                     "nashOutput": "Select an algorithm to compute."
                 })
     

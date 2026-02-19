@@ -15,7 +15,9 @@ import {
   TreeDeciduous,
   BookOpen,
   X,
-  Settings
+  Settings,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import python from 'react-syntax-highlighter/dist/esm/languages/hljs/python';
@@ -41,13 +43,36 @@ const Header = () => (
   </header>
 );
 
-const CodeWindow = ({ code, isGenerating, codeWindowRef }) => (
+const CodeWindow = ({ code, isGenerating, codeWindowRef, variantCount, currentVariantIndex, onNext, onPrev }) => (
   <div className="flex flex-col h-full bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
     <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200">
       <div className="flex items-center gap-2">
         <CodeIcon size={16} className="text-blue-400" />
         <span className="font-semibold text-slate-700 text-sm">Generated Python Code (PyGambit)</span>
       </div>
+      {variantCount > 1 && (
+        <div className="flex items-center gap-2 bg-white rounded-md border border-slate-200 p-0.5">
+          <button 
+            onClick={onPrev} 
+            disabled={currentVariantIndex === 0}
+            className="p-1 hover:bg-slate-100 rounded disabled:opacity-30 disabled:cursor-not-allowed text-slate-600"
+            title="Previous Variant"
+          >
+            <ChevronLeft size={14} />
+          </button>
+          <span className="text-xs font-mono text-slate-500 w-12 text-center select-none">
+            {currentVariantIndex + 1} / {variantCount}
+          </span>
+          <button 
+            onClick={onNext} 
+            disabled={currentVariantIndex === variantCount - 1}
+            className="p-1 hover:bg-slate-100 rounded disabled:opacity-30 disabled:cursor-not-allowed text-slate-600"
+            title="Next Variant"
+          >
+            <ChevronRight size={14} />
+          </button>
+        </div>
+      )}
     </div>
     <div 
       ref={codeWindowRef}
@@ -122,6 +147,8 @@ export default function App() {
   // Pipeline States
   const [isCodeGenerating, setIsCodeGenerating] = useState(false);
   const [generatedCode, setGeneratedCode] = useState("");
+  const [codeVariants, setCodeVariants] = useState([]);
+  const [currentVariantIndex, setCurrentVariantIndex] = useState(0);
   
   const [showVisual, setShowVisual] = useState(false);
   const [visualSvg, setVisualSvg] = useState(null);
@@ -230,6 +257,8 @@ export default function App() {
       setPrompt(game.description);
       setActiveGameId(gameId);
       setPromptEdited(false);
+      setCodeVariants([]);
+      setCurrentVariantIndex(0);
       // Reset pipeline
       setGeneratedCode("");
       setShowVisual(false);
@@ -245,16 +274,57 @@ export default function App() {
     setGeneratedCode("");
     setShowVisual(false);
     setNashResults(null);
+    setCodeVariants([]);
+    setCurrentVariantIndex(0);
     
     // Simulate LLM delay, but use the real code from the file if available
     setTimeout(() => {
       const game = presets.find(g => g.id === activeGameId);
-      // Fallback if custom text used, just show standard template
-      const code = game ? game.mockCode : `# Generated Code based on prompt\nimport pygambit as g\ngame = g.Game.new_table([2,2])\n# Logic inferred from prompt...\ngame.title = "Custom Game"`;
       
+      let code = "";
+      let variants = [];
+
+      if (game) {
+         variants = game.codeVariants || (game.mockCode ? [game.mockCode] : []);
+         if (variants.length > 0) {
+             code = variants[0];
+         } else {
+             // Fallback
+             code = `# Generated Code based on prompt...`;
+             variants = [code];
+         }
+      } else {
+          // Custom prompt fallback
+          code = `# Generated Code based on prompt\nimport pygambit as g\ngame = g.Game.new_table([2,2])\n# Logic inferred from prompt...\ngame.title = "Custom Game"`;
+          variants = [code];
+      }
+      
+      setCodeVariants(variants);
       setGeneratedCode(code);
       setIsCodeGenerating(false);
     }, 1000);
+  };
+
+  const handleNextVariant = () => {
+    if (currentVariantIndex < codeVariants.length - 1) {
+      const newIndex = currentVariantIndex + 1;
+      setCurrentVariantIndex(newIndex);
+      setGeneratedCode(codeVariants[newIndex]);
+      setShowVisual(false);
+      setNashResults(null);
+      setVisualSvg(null);
+    }
+  };
+
+  const handlePrevVariant = () => {
+    if (currentVariantIndex > 0) {
+      const newIndex = currentVariantIndex - 1;
+      setCurrentVariantIndex(newIndex);
+      setGeneratedCode(codeVariants[newIndex]);
+      setShowVisual(false);
+      setNashResults(null);
+      setVisualSvg(null);
+    }
   };
 
   // Toggle Visualization
@@ -444,7 +514,15 @@ export default function App() {
           {/* LEFT COL: Code & Computation */}
           <div className="lg:col-span-7 h-[50vh] flex flex-col gap-6">
             {/* TOP: Generated Code */}
-            <CodeWindow code={generatedCode} isGenerating={isCodeGenerating} codeWindowRef={codeWindowRef} />
+            <CodeWindow 
+              code={generatedCode} 
+              isGenerating={isCodeGenerating} 
+              codeWindowRef={codeWindowRef}
+              variantCount={codeVariants.length}
+              currentVariantIndex={currentVariantIndex}
+              onNext={handleNextVariant}
+              onPrev={handlePrevVariant}
+            />
             {/* BOTTOM: Nash Solver */}
             <div className="h-64 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
               {/* Toolbar */}
