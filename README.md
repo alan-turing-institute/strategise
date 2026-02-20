@@ -52,6 +52,17 @@ The extracted Python code automatically:
 - Removes file write/save operations (to allow visualization and Nash computation)
 - Is executable as-is for game tree visualization and equilibrium analysis
 
+## Configuration
+
+### Gemini API Key
+To use the "Generate Code" feature with Gemini:
+1. Get an API key from Google AI Studio.
+2. Create a `.env` file in the root directory.
+3. Add your key:
+   ```bash
+   GEMINI_API_KEY=your_api_key_here
+   ```
+
 ## Running the app locally
 
 ### Option 1: Docker (Recommended)

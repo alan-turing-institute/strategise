@@ -10,6 +10,13 @@ from flask_cors import CORS
 import pygambit as gbt
 from draw_tree import generate_pdf
 import multiprocessing
+from google import genai
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 app = Flask(__name__)
 CORS(app)
@@ -202,6 +209,34 @@ def get_dataset_games():
                 })
     
     return games
+
+@app.route('/generate', methods=['POST'])
+def generate_code():
+    data = request.json
+    prompt = data.get('prompt')
+
+    if genai is None:
+        return jsonify({"error": "The 'google-genai' library is missing. Please install it (pip install google-genai)."}), 500
+
+    if not prompt:
+        return jsonify({"error": "No prompt provided"}), 400
+
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        return jsonify({"error": "GEMINI_API_KEY not set. Please check your .env file."}), 500
+
+    try:
+        client = genai.Client()
+
+        response = client.models.generate_content(
+            model="gemini-2.5-pro", contents=prompt
+        )
+        return response.text
+
+    except Exception as e:
+        error_details = traceback.format_exc()
+        print(f"Gemini API Error: {e}\n{error_details}", file=sys.stderr)
+        return jsonify({"error": f"An error occurred with the Gemini API: {str(e)}"}), 500
 
 @app.route('/games', methods=['GET'])
 def get_games():
