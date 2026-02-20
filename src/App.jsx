@@ -277,32 +277,29 @@ export default function App() {
     setCodeVariants([]);
     setCurrentVariantIndex(0);
     
-    // Simulate LLM delay, but use the real code from the file if available
-    setTimeout(() => {
-      const game = presets.find(g => g.id === activeGameId);
-      
-      let code = "";
-      let variants = [];
+    const game = presets.find(g => g.id === activeGameId);
+    
+    let code = "";
+    let variants = [];
 
-      if (game) {
-         variants = game.codeVariants || (game.mockCode ? [game.mockCode] : []);
-         if (variants.length > 0) {
-             code = variants[0];
-         } else {
-             // Fallback
-             code = `# Generated Code based on prompt...`;
-             variants = [code];
-         }
+    if (game) {
+      variants = game.codeVariants || (game.mockCode ? [game.mockCode] : []);
+      if (variants.length > 0) {
+        code = variants[0];
       } else {
-          // Custom prompt fallback
-          code = `# Generated Code based on prompt\nimport pygambit as g\ngame = g.Game.new_table([2,2])\n# Logic inferred from prompt...\ngame.title = "Custom Game"`;
-          variants = [code];
+        // Fallback
+        code = `# Generated Code based on prompt...`;
+        variants = [code];
       }
-      
-      setCodeVariants(variants);
-      setGeneratedCode(code);
-      setIsCodeGenerating(false);
-    }, 1000);
+    } else {
+      // Custom prompt fallback
+      code = `# Generated Code based on prompt\nimport pygambit as g\ngame = g.Game.new_table([2,2])\n# Logic inferred from prompt...\ngame.title = "Custom Game"`;
+      variants = [code];
+    }
+    
+    setCodeVariants(variants);
+    setGeneratedCode(code);
+    setIsCodeGenerating(false);
   };
 
   const handleNextVariant = () => {
