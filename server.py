@@ -226,10 +226,10 @@ def generate_code():
         return jsonify({"error": "GEMINI_API_KEY not set. Please check your .env file."}), 500
 
     try:
-        client = genai.Client()
+        client = genai.Client(api_key=api_key)
 
         response = client.models.generate_content(
-            model="gemini-2.5-pro", contents=prompt
+            model="gemini-2.5-flash", contents=prompt
         )
         return response.text
 
