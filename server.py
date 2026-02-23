@@ -225,18 +225,12 @@ def generate_code():
     if not api_key:
         return jsonify({"error": "GEMINI_API_KEY not set. Please check your .env file."}), 500
 
-    try:
-        client = genai.Client(api_key=api_key)
+    client = genai.Client(api_key=api_key)
 
-        response = client.models.generate_content(
-            model="gemini-2.5-flash", contents=prompt
-        )
-        return response.text
-
-    except Exception as e:
-        error_details = traceback.format_exc()
-        print(f"Gemini API Error: {e}\n{error_details}", file=sys.stderr)
-        return jsonify({"error": f"An error occurred with the Gemini API: {str(e)}"}), 500
+    response = client.models.generate_content(
+        model="gemini-2.5-flash", contents=prompt
+    )
+    return jsonify({"response": response.text})
 
 @app.route('/games', methods=['GET'])
 def get_games():
