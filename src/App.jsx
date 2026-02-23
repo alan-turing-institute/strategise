@@ -566,7 +566,8 @@ export default function App() {
                         className="w-full bg-slate-100 border border-slate-300 text-slate-600 rounded px-1 py-1 hover:bg-slate-200 cursor-pointer outline-none"
                     >
                         <option value="gemini-2.5-flash">gemini-2.5-flash</option>
-                        <option value="gemini-3.1-pro">gemini-3.1-pro</option>
+                        <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+                        <option value="gemini-3.1-pro-preview">gemini-3.1-pro-preview</option>
                     </select>
                 </div>
                 <div>
