@@ -41,6 +41,10 @@ You can then move on to the [Application setup](#application-setup) section.
 
 ## Application setup
 
+To set up the application, either use Docker, or install the dependencides manually.
+
+> Note: If you already have LaTeX installed then manual setup may be faster than waiting for the docker build.
+
 ### Option 1: Docker (Recommended)
 
 Docker provides a consistent, isolated environment with all dependencies pre-installed. This is the easiest way to get started.
