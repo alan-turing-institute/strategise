@@ -148,6 +148,7 @@ export default function App() {
   
   // Pipeline States
   const [isCodeGenerating, setIsCodeGenerating] = useState(false);
+  const [isGeminiGenerating, setIsGeminiGenerating] = useState(false);
   const [generatedCode, setGeneratedCode] = useState("");
   const [codeVariants, setCodeVariants] = useState([]);
   const [currentVariantIndex, setCurrentVariantIndex] = useState(0);
@@ -278,8 +279,8 @@ export default function App() {
 
   const handleGeminiGenerate = () => {
     if (!prompt) return;
-    setIsCodeGenerating(true);
     setGeneratedCode("");
+    setIsGeminiGenerating(true);
     setShowVisual(false);
     setNashResults(null);
     setCodeVariants([]);
@@ -304,7 +305,7 @@ export default function App() {
       setGeneratedCode(`# Error: ${err.message}\n\n# Please check the following:\n# 1. Your backend server is running.\n# 2. The GEMINI_API_KEY in your .env file is correct and has billing enabled.\n# 3. Your prompt does not violate safety policies.`);
     })
     .finally(() => {
-      setIsCodeGenerating(false);
+      setIsGeminiGenerating(false);
     });
   };
 
@@ -520,12 +521,12 @@ export default function App() {
             <div className="w-full md:w-64 flex flex-col justify-end gap-3">   
               <button 
                 onClick={handleGeminiGenerate}
-                disabled={!prompt || isCodeGenerating}
+                disabled={!prompt || isCodeGenerating || isGeminiGenerating}
                 className={`flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-white shadow-lg shadow-purple-500/30 transition-all transform active:scale-95 ${
-                  !prompt || isCodeGenerating ? 'bg-slate-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-500 hover:-translate-y-0.5'
+                  !prompt ? 'bg-slate-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-500 hover:-translate-y-0.5'
                 }`}
               >
-                {isCodeGenerating ? (
+                {isGeminiGenerating ? (
                   <RefreshCw className="animate-spin" size={20} />
                 ) : (
                   <Sparkles size={20} className="text-white" /> 
@@ -538,7 +539,7 @@ export default function App() {
               <div className="flex flex-col gap-2">
                 <button
                   onClick={handleGenerateCode}
-                  disabled={!activeGameId || promptEdited || isCodeGenerating}
+                  disabled={!activeGameId || promptEdited || isCodeGenerating || isGeminiGenerating}
                   className={`flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-white shadow-lg shadow-blue-500/30 transition-all transform active:scale-95 ${
                     !activeGameId || promptEdited ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 hover:-translate-y-0.5'
                   }`}
@@ -575,7 +576,7 @@ export default function App() {
             {/* TOP: Generated Code */}
             <CodeWindow 
               code={generatedCode} 
-              isGenerating={isCodeGenerating} 
+              isGenerating={isCodeGenerating || isGeminiGenerating} 
               codeWindowRef={codeWindowRef}
               variantCount={codeVariants.length}
               currentVariantIndex={currentVariantIndex}
