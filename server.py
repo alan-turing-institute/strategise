@@ -233,7 +233,15 @@ def generate_code():
 
     client = genai.Client(api_key=api_key)
 
-    system_instruction = "You are an expert in Game Theory and the PyGambit library. Write Python code to create the game described. The code must define a variable named 'game' which is a pygambit.Game object. Do not include any explanations, just the code."
+    settings = {}
+    settings['A'] = ""
+    try:
+        with open(os.path.join(BASE_DIR, 'GameInterpreter', 'Prompts', 'Code_Generation_Initialization.txt'), 'r') as f:
+            settings['A'] = f.read()
+    except Exception as e:
+        print(f"Error loading system instruction: {e}", file=sys.stderr)
+
+    system_instruction = settings['A']
     full_prompt = f"{system_instruction}\n\nDescription: {prompt}"
 
     response = client.models.generate_content(

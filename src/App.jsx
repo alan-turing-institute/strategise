@@ -534,7 +534,7 @@ export default function App() {
                 Generate Code
               </button>
               <p className="text-xs text-slate-500 text-center leading-relaxed px-2">
-                Uses GameInterpreter LLM pipeline to construct a structured <code className="bg-slate-100 px-1 rounded text-slate-700">pygambit.Game</code> object.
+                Uses GameInterpreter LLM pipeline Setting A with Gemini to construct a <code className="bg-slate-100 px-1 rounded text-slate-700">pygambit.Game</code> object.
               </p>
               <div className="flex flex-col gap-2">
                 <button
