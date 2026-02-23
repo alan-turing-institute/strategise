@@ -221,17 +221,15 @@ def get_dataset_games():
     return games
 
 @app.route('/generate', methods=['POST'])
-def generate_code(
-    service="gemini",
-    model="gemini-2.5-flash",
-    setting="A"
-):
+def generate_code():
+    data = request.json
+    prompt = data.get('prompt')
+    service = data.get('service', 'gemini')
+    model = data.get('model', 'gemini-2.5-flash')
+    setting = data.get('setting', 'A')
 
     if service != "gemini":
         return jsonify({"error": f"Service '{service}' not currently implemented."}), 400
-
-    data = request.json
-    prompt = data.get('prompt')
 
     if genai is None:
         return jsonify({"error": "The 'google-genai' library is missing. Please install it (pip install google-genai)."}), 500

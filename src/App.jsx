@@ -150,6 +150,9 @@ export default function App() {
   const [isCodeGenerating, setIsCodeGenerating] = useState(false);
   const [isGeminiGenerating, setIsGeminiGenerating] = useState(false);
   const [generatedCode, setGeneratedCode] = useState("");
+  const [generationService, setGenerationService] = useState('gemini');
+  const [generationModel, setGenerationModel] = useState('gemini-2.5-flash');
+  const [generationSetting, setGenerationSetting] = useState('A');
   const [codeVariants, setCodeVariants] = useState([]);
   const [currentVariantIndex, setCurrentVariantIndex] = useState(0);
   
@@ -289,7 +292,12 @@ export default function App() {
     fetch('http://127.0.0.1:5000/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({
+        prompt,
+        service: generationService,
+        model: generationModel,
+        setting: generationSetting,
+      })
     })
     .then(res => res.json())
     .then(data => {
@@ -533,9 +541,44 @@ export default function App() {
                 )}
                 Generate Code
               </button>
-              <p className="text-xs text-slate-500 text-center leading-relaxed px-2">
-                Uses GameInterpreter LLM pipeline Setting A with Gemini to construct a <code className="bg-slate-100 px-1 rounded text-slate-700">pygambit.Game</code> object.
-              </p>
+              <div className="grid grid-cols-3 gap-2 px-2 text-xs">
+                <div>
+                    <label className="block text-slate-500 font-medium mb-1 text-center">Service</label>
+                    <select
+                        value={generationService}
+                        onChange={(e) => setGenerationService(e.target.value)}
+                        className="w-full bg-slate-100 border border-slate-300 text-slate-600 rounded px-1 py-1 hover:bg-slate-200 cursor-pointer outline-none"
+                    >
+                        <option value="gemini">Gemini</option>
+                        <option value="chatgpt" disabled>ChatGPT</option>
+                        <option value="claude" disabled>Claude</option>
+                    </select>
+                </div>
+                <div>
+                    <label className="block text-slate-500 font-medium mb-1 text-center">Model</label>
+                    <select
+                        value={generationModel}
+                        onChange={(e) => setGenerationModel(e.target.value)}
+                        className="w-full bg-slate-100 border border-slate-300 text-slate-600 rounded px-1 py-1 hover:bg-slate-200 cursor-pointer outline-none"
+                    >
+                        <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                        <option value="gemini-3.1-pro">gemini-3.1-pro</option>
+                    </select>
+                </div>
+                <div>
+                    <label className="block text-slate-500 font-medium mb-1 text-center">GameInterpreter</label>
+                    <select
+                        value={generationSetting}
+                        onChange={(e) => setGenerationSetting(e.target.value)}
+                        className="w-full bg-slate-100 border border-slate-300 text-slate-600 rounded px-1 py-1 hover:bg-slate-200 cursor-pointer outline-none"
+                    >
+                        <option value="A">Setting A</option>
+                        <option value="B" disabled>Setting B</option>
+                        <option value="C" disabled>Setting C</option>
+                        <option value="D" disabled>Setting D</option>
+                    </select>
+                </div>
+              </div>
               <div className="flex flex-col gap-2">
                 <button
                   onClick={handleGenerateCode}
