@@ -75,15 +75,21 @@ def solver_worker(code, algorithm, queue):
     except Exception as e:
         queue.put({"error": str(e)})
 
+def extract_python_blocks(text_content):
+    """
+    Extract the code from Python blocks in a text string.
+    """
+    # Find all code blocks between ```python and ```
+    pattern = r"```python\n(.*?)\n```"
+    return re.findall(pattern, text_content, re.DOTALL)
+
 def extract_python_code_from_text(text_content):
     """
     Extract Python code from a text file that contains formatted Python code blocks.
     Only uses the second code block which contains the main game creation script.
     Removes any file write/save calls since the game object needs to be used for visualization.
     """
-    # Find all code blocks between ```python and ```
-    pattern = r'```python\n(.*?)\n```'
-    matches = re.findall(pattern, text_content, re.DOTALL)
+    matches = extract_python_blocks(text_content)
     
     # Use only the second code block (index 1)
     if len(matches) >= 2:
@@ -227,10 +233,50 @@ def generate_code():
 
     client = genai.Client(api_key=api_key)
 
+    system_instruction = "You are an expert in Game Theory and the PyGambit library. Write Python code to create the game described. The code must define a variable named 'game' which is a pygambit.Game object. Do not include any explanations, just the code."
+    full_prompt = f"{system_instruction}\n\nDescription: {prompt}"
+
     response = client.models.generate_content(
-        model="gemini-2.5-flash", contents=prompt
+        model="gemini-2.5-flash", contents=full_prompt
     )
-    return jsonify({"response": response.text})
+
+    # Extract Python code blocks from the response
+    extracted_blocks = extract_python_blocks(response.text)
+
+    if not extracted_blocks:
+        return jsonify({"error": "No Python code blocks found in the response"}), 400
+    if len(extracted_blocks) > 1:
+        print("[WARNING] Multiple Python code blocks found. Using the first one.", file=sys.stderr)
+
+    # Remove any lines that write/save the game to file
+    lines = extracted_blocks[0].split("\n")
+    filtered_lines = []
+    for line in lines:
+        # Skip lines that contain write, save, or export operations
+        stripped = line.strip()
+        if not any(
+            x in stripped
+            for x in [
+                "g.write(",
+                ".write(",
+                "g.save(",
+                ".save(",
+                "efg = ",
+                "export",
+                ".to_file",
+                ".dump",
+                "# Save the EFG",
+            ]
+        ):
+            filtered_lines.append(line)
+
+    # Remove trailing blank lines
+    while filtered_lines and not filtered_lines[-1].strip():
+        filtered_lines.pop()
+    cleaned_code = "\n".join(filtered_lines)
+    print(f"[DEBUG] Generated code:\n{cleaned_code}", file=sys.stderr)
+    return jsonify({"code": cleaned_code})
+
 
 @app.route('/games', methods=['GET'])
 def get_games():
