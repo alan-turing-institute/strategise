@@ -39,7 +39,8 @@ You can then move on to the [Application setup](#application-setup) section.
 
 *NOT IMPLEMENTED*
 
-## Application setup
+Application setup
+-----------------
 
 To set up the application, either use Docker, or install the dependencides manually.
 
