@@ -430,7 +430,11 @@ export default function App() {
     })
     .then(data => {
       if (activeTaskRef.current === taskId) {
-        setNashResults(data.results || "No results returned from solver.");
+        if (data.error) {
+          setNashResults(`Error: ${data.error}`);
+        } else {
+          setNashResults(data.results || "No results returned from solver.");
+        }
       }
     })
     .catch(err => {
