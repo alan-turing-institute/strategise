@@ -83,23 +83,10 @@ def extract_python_blocks(text_content):
     pattern = r"```python\n(.*?)\n```"
     return re.findall(pattern, text_content, re.DOTALL)
 
-def extract_python_code_from_text(text_content):
+def clean_python_code(code):
     """
-    Extract Python code from a text file that contains formatted Python code blocks.
-    Only uses the second code block which contains the main game creation script.
-    Removes any file write/save calls since the game object needs to be used for visualization.
+    Remove any lines that write/save the game to file and trailing blank lines.
     """
-    matches = extract_python_blocks(text_content)
-    
-    # Use only the second code block (index 1)
-    if len(matches) >= 2:
-        code = matches[1]
-    elif len(matches) == 1:
-        code = matches[0]
-    else:
-        return ""
-    
-    # Remove any lines that write/save the game to file
     lines = code.split('\n')
     filtered_lines = []
     for line in lines:
@@ -113,6 +100,23 @@ def extract_python_code_from_text(text_content):
         filtered_lines.pop()
     
     return '\n'.join(filtered_lines)
+
+def extract_second_python_code_block(text_content):
+    """
+    Extract Python code from a text file that contains formatted Python code blocks.
+    Only uses the second code block which contains the main game creation script.
+    """
+    matches = extract_python_blocks(text_content)
+    
+    # Use only the second code block (index 1)
+    if len(matches) >= 2:
+        code = matches[1]
+    elif len(matches) == 1:
+        code = matches[0]
+    else:
+        return ""
+    
+    return clean_python_code(code)
 
 def find_output_directory(game_id, output_base_path):
     """
@@ -195,7 +199,7 @@ def get_dataset_games():
                     for txt_file in txt_files:
                         with open(txt_file, 'r') as f:
                             output_content = f.read()
-                            extracted = extract_python_code_from_text(output_content)
+                            extracted = extract_second_python_code_block(output_content)
                             if extracted:
                                 code_variants.append(extracted)
                 except Exception as e:
@@ -256,33 +260,7 @@ def generate_code():
     if len(extracted_blocks) > 1:
         print("[WARNING] Multiple Python code blocks found. Using the first one.", file=sys.stderr)
 
-    # Remove any lines that write/save the game to file
-    lines = extracted_blocks[0].split("\n")
-    filtered_lines = []
-    for line in lines:
-        # Skip lines that contain write, save, or export operations
-        stripped = line.strip()
-        if not any(
-            x in stripped
-            for x in [
-                "g.write(",
-                ".write(",
-                "g.save(",
-                ".save(",
-                "efg = ",
-                "export",
-                ".to_file",
-                ".dump",
-                "# Save the EFG",
-            ]
-        ):
-            filtered_lines.append(line)
-
-    # Remove trailing blank lines
-    while filtered_lines and not filtered_lines[-1].strip():
-        filtered_lines.pop()
-    cleaned_code = "\n".join(filtered_lines)
-    print(f"[DEBUG] Generated code:\n{cleaned_code}", file=sys.stderr)
+    cleaned_code = clean_python_code(extracted_blocks[0])
     return jsonify({"code": cleaned_code})
 
 
