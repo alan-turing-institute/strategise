@@ -221,7 +221,15 @@ def get_dataset_games():
     return games
 
 @app.route('/generate', methods=['POST'])
-def generate_code():
+def generate_code(
+    service="gemini",
+    model="gemini-2.5-flash",
+    setting="A"
+):
+
+    if service != "gemini":
+        return jsonify({"error": f"Service '{service}' not currently implemented."}), 400
+
     data = request.json
     prompt = data.get('prompt')
 
@@ -238,18 +246,21 @@ def generate_code():
     client = genai.Client(api_key=api_key)
 
     settings = {}
-    settings['A'] = ""
-    try:
-        with open(os.path.join(BASE_DIR, 'GameInterpreter', 'Prompts', 'Code_Generation_Initialization.txt'), 'r') as f:
-            settings['A'] = f.read()
-    except Exception as e:
-        print(f"Error loading system instruction: {e}", file=sys.stderr)
+    if setting == "A":
+        settings[setting] = ""
+        try:
+            with open(os.path.join(BASE_DIR, 'GameInterpreter', 'Prompts', 'Code_Generation_Initialization.txt'), 'r') as f:
+                settings[setting] = f.read()
+        except Exception as e:
+            print(f"Error loading system instruction: {e}", file=sys.stderr)
+    else:
+        return jsonify({"error": f"Setting '{setting}' not currently implemented."}), 400
 
-    system_instruction = settings['A']
+    system_instruction = settings[setting]
     full_prompt = f"{system_instruction}\n\nDescription: {prompt}"
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash", contents=full_prompt
+        model=model, contents=full_prompt
     )
 
     # Extract Python code blocks from the response
