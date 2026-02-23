@@ -295,7 +295,7 @@ export default function App() {
       if (data.error) {
         throw new Error(data.error);
       }
-      const code = data.response || "# No code returned";
+      const code = data.code || "# No code returned";
       setGeneratedCode(code);
       setCodeVariants([code]);
     })
