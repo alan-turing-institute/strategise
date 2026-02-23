@@ -3,3 +3,6 @@ draw-tree @ git+https://github.com/gambitproject/draw_tree.git@v0.4.0
 flask
 flask-cors
 ipython
+requests
+python-dotenv
+google-genai

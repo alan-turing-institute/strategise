@@ -17,7 +17,8 @@ import {
   X,
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  AlertCircle
 } from 'lucide-react';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import python from 'react-syntax-highlighter/dist/esm/languages/hljs/python';
@@ -143,10 +144,15 @@ export default function App() {
   const [activeGameId, setActiveGameId] = useState(null);
   const [presets, setPresets] = useState([]);
   const [promptEdited, setPromptEdited] = useState(false);
+  const [connectionError, setConnectionError] = useState(null);
   
   // Pipeline States
   const [isCodeGenerating, setIsCodeGenerating] = useState(false);
+  const [isGeminiGenerating, setIsGeminiGenerating] = useState(false);
   const [generatedCode, setGeneratedCode] = useState("");
+  const [generationService, setGenerationService] = useState('gemini');
+  const [generationModel, setGenerationModel] = useState('gemini-2.5-flash');
+  const [generationSetting, setGenerationSetting] = useState('A');
   const [codeVariants, setCodeVariants] = useState([]);
   const [currentVariantIndex, setCurrentVariantIndex] = useState(0);
   
@@ -240,10 +246,17 @@ export default function App() {
 
   // Load presets from server
   const fetchGames = () => {
+    setConnectionError(null);
     fetch('http://127.0.0.1:5000/games')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Server returned " + res.status);
+        return res.json();
+      })
       .then(data => setPresets(data))
-      .catch(err => console.error("Failed to load games:", err));
+      .catch(err => {
+        console.error("Failed to load games:", err);
+        setConnectionError("Cannot connect to backend server. Make sure 'server.py' is running.");
+      });
   };
 
   useEffect(() => {
@@ -265,6 +278,43 @@ export default function App() {
       setVisualSvg(null);
       setNashResults(null);
     }
+  };
+
+  const handleGeminiGenerate = () => {
+    if (!prompt) return;
+    setGeneratedCode("");
+    setIsGeminiGenerating(true);
+    setShowVisual(false);
+    setNashResults(null);
+    setCodeVariants([]);
+    setCurrentVariantIndex(0);
+
+    fetch('http://127.0.0.1:5000/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt,
+        service: generationService,
+        model: generationModel,
+        setting: generationSetting,
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      const code = data.code || "# No code returned";
+      setGeneratedCode(code);
+      setCodeVariants([code]);
+    })
+    .catch(err => {
+      console.error(err);
+      setGeneratedCode(`# Error: ${err.message}\n\n# Please check the following:\n# 1. Your backend server is running.\n# 2. The GEMINI_API_KEY in your .env file is correct and has billing enabled.\n# 3. Your prompt does not violate safety policies.`);
+    })
+    .finally(() => {
+      setIsGeminiGenerating(false);
+    });
   };
 
   // Mock API Call: Generate Code
@@ -380,7 +430,11 @@ export default function App() {
     })
     .then(data => {
       if (activeTaskRef.current === taskId) {
-        setNashResults(data.results || "No results returned from solver.");
+        if (data.error) {
+          setNashResults(`Error: ${data.error}`);
+        } else {
+          setNashResults(data.results || "No results returned from solver.");
+        }
       }
     })
     .catch(err => {
@@ -417,6 +471,19 @@ export default function App() {
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-200">
       <Header />
+      
+      {connectionError && (
+        <div className="bg-red-50 border-b border-red-200 px-6 py-3 flex items-center justify-center gap-2 text-red-700 text-sm animate-in slide-in-from-top-2">
+          <AlertCircle size={16} />
+          <span className="font-medium">{connectionError}</span>
+          <button 
+            onClick={fetchGames} 
+            className="ml-2 px-3 py-1 bg-red-100 hover:bg-red-200 rounded-md text-xs font-bold transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      )}
       
       <main className="flex-1 p-6 max-w-7xl mx-auto w-full flex flex-col gap-6">
         
@@ -465,19 +532,61 @@ export default function App() {
 
             <div className="w-full md:w-64 flex flex-col justify-end gap-3">   
               <button 
-                disabled={true}
-                className="flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-white bg-slate-400 cursor-not-allowed opacity-60 transition-all"
+                onClick={handleGeminiGenerate}
+                disabled={!prompt || isCodeGenerating || isGeminiGenerating}
+                className={`flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-white shadow-lg shadow-purple-500/30 transition-all transform active:scale-95 ${
+                  !prompt ? 'bg-slate-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-500 hover:-translate-y-0.5'
+                }`}
               >
-                <Sparkles size={20} className="text-slate-300" /> 
+                {isGeminiGenerating ? (
+                  <RefreshCw className="animate-spin" size={20} />
+                ) : (
+                  <Sparkles size={20} className="text-white" /> 
+                )}
                 Generate Code
               </button>
-              <p className="text-xs text-slate-500 text-center leading-relaxed px-2">
-                Uses GameInterpreter LLM pipeline to construct a structured <code className="bg-slate-100 px-1 rounded text-slate-700">pygambit.Game</code> object.
-              </p>
+              <div className="grid grid-cols-3 gap-2 px-2 text-xs">
+                <div>
+                    <label className="block text-slate-500 font-medium mb-1 text-center">Service</label>
+                    <select
+                        value={generationService}
+                        onChange={(e) => setGenerationService(e.target.value)}
+                        className="w-full bg-slate-100 border border-slate-300 text-slate-600 rounded px-1 py-1 hover:bg-slate-200 cursor-pointer outline-none"
+                    >
+                        <option value="gemini">Gemini</option>
+                        <option value="chatgpt" disabled>ChatGPT</option>
+                        <option value="claude" disabled>Claude</option>
+                    </select>
+                </div>
+                <div>
+                    <label className="block text-slate-500 font-medium mb-1 text-center">Model</label>
+                    <select
+                        value={generationModel}
+                        onChange={(e) => setGenerationModel(e.target.value)}
+                        className="w-full bg-slate-100 border border-slate-300 text-slate-600 rounded px-1 py-1 hover:bg-slate-200 cursor-pointer outline-none"
+                    >
+                        <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                        <option value="gemini-3.1-pro">gemini-3.1-pro</option>
+                    </select>
+                </div>
+                <div>
+                    <label className="block text-slate-500 font-medium mb-1 text-center">GameInterpreter</label>
+                    <select
+                        value={generationSetting}
+                        onChange={(e) => setGenerationSetting(e.target.value)}
+                        className="w-full bg-slate-100 border border-slate-300 text-slate-600 rounded px-1 py-1 hover:bg-slate-200 cursor-pointer outline-none"
+                    >
+                        <option value="A">Setting A</option>
+                        <option value="B" disabled>Setting B</option>
+                        <option value="C" disabled>Setting C</option>
+                        <option value="D" disabled>Setting D</option>
+                    </select>
+                </div>
+              </div>
               <div className="flex flex-col gap-2">
                 <button
                   onClick={handleGenerateCode}
-                  disabled={!activeGameId || promptEdited || isCodeGenerating}
+                  disabled={!activeGameId || promptEdited || isCodeGenerating || isGeminiGenerating}
                   className={`flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-white shadow-lg shadow-blue-500/30 transition-all transform active:scale-95 ${
                     !activeGameId || promptEdited ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 hover:-translate-y-0.5'
                   }`}
@@ -514,7 +623,7 @@ export default function App() {
             {/* TOP: Generated Code */}
             <CodeWindow 
               code={generatedCode} 
-              isGenerating={isCodeGenerating} 
+              isGenerating={isCodeGenerating || isGeminiGenerating} 
               codeWindowRef={codeWindowRef}
               variantCount={codeVariants.length}
               currentVariantIndex={currentVariantIndex}

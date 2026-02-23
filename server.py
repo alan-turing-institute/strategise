@@ -10,6 +10,13 @@ from flask_cors import CORS
 import pygambit as gbt
 from draw_tree import generate_pdf
 import multiprocessing
+from google import genai
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 app = Flask(__name__)
 CORS(app)
@@ -68,25 +75,18 @@ def solver_worker(code, algorithm, queue):
     except Exception as e:
         queue.put({"error": str(e)})
 
-def extract_python_code_from_text(text_content):
+def extract_python_blocks(text_content):
     """
-    Extract Python code from a text file that contains formatted Python code blocks.
-    Only uses the second code block which contains the main game creation script.
-    Removes any file write/save calls since the game object needs to be used for visualization.
+    Extract the code from Python blocks in a text string.
     """
     # Find all code blocks between ```python and ```
-    pattern = r'```python\n(.*?)\n```'
-    matches = re.findall(pattern, text_content, re.DOTALL)
-    
-    # Use only the second code block (index 1)
-    if len(matches) >= 2:
-        code = matches[1]
-    elif len(matches) == 1:
-        code = matches[0]
-    else:
-        return ""
-    
-    # Remove any lines that write/save the game to file
+    pattern = r"```python\n(.*?)\n```"
+    return re.findall(pattern, text_content, re.DOTALL)
+
+def clean_python_code(code):
+    """
+    Remove any lines that write/save the game to file and trailing blank lines.
+    """
     lines = code.split('\n')
     filtered_lines = []
     for line in lines:
@@ -100,6 +100,23 @@ def extract_python_code_from_text(text_content):
         filtered_lines.pop()
     
     return '\n'.join(filtered_lines)
+
+def extract_second_python_code_block(text_content):
+    """
+    Extract Python code from a text file that contains formatted Python code blocks.
+    Only uses the second code block which contains the main game creation script.
+    """
+    matches = extract_python_blocks(text_content)
+    
+    # Use only the second code block (index 1)
+    if len(matches) >= 2:
+        code = matches[1]
+    elif len(matches) == 1:
+        code = matches[0]
+    else:
+        return ""
+    
+    return clean_python_code(code)
 
 def find_output_directory(game_id, output_base_path):
     """
@@ -182,7 +199,7 @@ def get_dataset_games():
                     for txt_file in txt_files:
                         with open(txt_file, 'r') as f:
                             output_content = f.read()
-                            extracted = extract_python_code_from_text(output_content)
+                            extracted = extract_second_python_code_block(output_content)
                             if extracted:
                                 code_variants.append(extracted)
                 except Exception as e:
@@ -202,6 +219,59 @@ def get_dataset_games():
                 })
     
     return games
+
+@app.route('/generate', methods=['POST'])
+def generate_code():
+    data = request.json
+    prompt = data.get('prompt')
+    service = data.get('service', 'gemini')
+    model = data.get('model', 'gemini-2.5-flash')
+    setting = data.get('setting', 'A')
+
+    if service != "gemini":
+        return jsonify({"error": f"Service '{service}' not currently implemented."}), 400
+
+    if genai is None:
+        return jsonify({"error": "The 'google-genai' library is missing. Please install it (pip install google-genai)."}), 500
+
+    if not prompt:
+        return jsonify({"error": "No prompt provided"}), 400
+
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        return jsonify({"error": "GEMINI_API_KEY not set. Please check your .env file."}), 500
+
+    client = genai.Client(api_key=api_key)
+
+    settings = {}
+    if setting == "A":
+        settings[setting] = ""
+        try:
+            with open(os.path.join(BASE_DIR, 'GameInterpreter', 'Prompts', 'Code_Generation_Initialization.txt'), 'r') as f:
+                settings[setting] = f.read()
+        except Exception as e:
+            print(f"Error loading system instruction: {e}", file=sys.stderr)
+    else:
+        return jsonify({"error": f"Setting '{setting}' not currently implemented."}), 400
+
+    system_instruction = settings[setting]
+    full_prompt = f"{system_instruction}\n\nDescription: {prompt}"
+
+    response = client.models.generate_content(
+        model=model, contents=full_prompt
+    )
+
+    # Extract Python code blocks from the response
+    extracted_blocks = extract_python_blocks(response.text)
+
+    if not extracted_blocks:
+        return jsonify({"error": "No Python code blocks found in the response"}), 400
+    if len(extracted_blocks) > 1:
+        print("[WARNING] Multiple Python code blocks found. Using the first one.", file=sys.stderr)
+
+    cleaned_code = clean_python_code(extracted_blocks[0])
+    return jsonify({"code": cleaned_code})
+
 
 @app.route('/games', methods=['GET'])
 def get_games():
