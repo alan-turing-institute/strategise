@@ -9,6 +9,7 @@ Table of contents:
     - [Configure your LLM service](#configure-your-llm-service)
     - [Application setup](#application-setup)
 - [Example Games Data Source](#example-games-data-source)
+- [Testing](#testing)
     
 
 # Running the app locally
@@ -110,6 +111,69 @@ Follow the steps below; there's also more info on Docker and truobleshooting in 
 - In two separate terminal tabs:
     - Run `python server.py` to start the Flask backend.
     - Run `npm run dev` to start the development server.
+
+# Testing
+
+The project includes a test suite for both the backend (Python/Flask) and frontend (React/Vite), which are automatically run by a GitHub Action on every push.
+
+## Running Tests with Docker (Recommended)
+
+You can run the tests within the Docker containers to ensure the environment is identical to the CI pipeline.
+
+### Backend Tests
+
+- macOS:
+    ```bash
+    docker compose run --rm api pytest
+    ```
+- Linux:
+    ```bash
+    docker-compose run --rm api pytest
+    ```
+
+### Frontend Tests
+
+- macOS
+    ```bash
+    docker compose run --rm web npm test
+    ```
+- Linux
+    ```bash
+    docker-compose run --rm web npm test
+    ```
+
+## Running Tests Manually
+
+### Frontend Tests
+
+The frontend uses Vitest and React Testing Library.
+
+**Prerequisites:**
+
+Ensure you have installed the development dependencies:
+```bash
+npm install
+```
+
+**Running Tests:**
+
+```bash
+npm test
+```
+
+### Backend Tests
+
+The backend uses Pytest.
+
+**Prerequisites:**
+
+Ensure you have installed the Python dependencies from `requirements.txt`.
+
+**Running Tests:**
+
+```bash
+pytest
+```
 
 # Example Games Data Source
 
