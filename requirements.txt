@@ -6,3 +6,5 @@ ipython
 requests
 python-dotenv
 google-genai
+pytest
+pytest-mock

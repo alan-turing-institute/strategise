@@ -9,6 +9,7 @@ Table of contents:
     - [Configure your LLM service](#configure-your-llm-service)
     - [Application setup](#application-setup)
 - [Example Games Data Source](#example-games-data-source)
+- [Testing](#testing)
     
 
 # Running the app locally
@@ -110,6 +111,28 @@ Follow the steps below; there's also more info on Docker and truobleshooting in 
 - In two separate terminal tabs:
     - Run `python server.py` to start the Flask backend.
     - Run `npm run dev` to start the development server.
+
+# Testing
+
+The project includes a test suite for the backend (Python/Flask), which is automatically run by a GitHub Action on every push.
+You can try them locally like so:
+
+## Running tests for Docker setup
+
+- macOS:
+    ```bash
+    docker compose run --rm api pytest
+    ```
+- Linux:
+    ```bash
+    docker-compose run --rm api pytest
+    ```
+
+## Running tests for manual setup
+
+```bash
+pytest
+```
 
 # Example Games Data Source
 
