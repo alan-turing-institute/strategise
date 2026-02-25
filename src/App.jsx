@@ -145,6 +145,7 @@ export default function App() {
   const [presets, setPresets] = useState([]);
   const [promptEdited, setPromptEdited] = useState(false);
   const [connectionError, setConnectionError] = useState(null);
+  const [isGeminiEnabled, setIsGeminiEnabled] = useState(false);
   
   // Pipeline States
   const [isCodeGenerating, setIsCodeGenerating] = useState(false);
@@ -261,6 +262,13 @@ export default function App() {
 
   useEffect(() => {
     fetchGames();
+  }, []);
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:5000/config')
+      .then(res => res.json())
+      .then(data => setIsGeminiEnabled(!!data.gemini_enabled))
+      .catch(err => console.error("Failed to load config:", err));
   }, []);
 
   // Handle Preset Selection
@@ -533,9 +541,10 @@ export default function App() {
             <div className="w-full md:w-64 flex flex-col justify-end gap-3">   
               <button 
                 onClick={handleGeminiGenerate}
-                disabled={!prompt || isCodeGenerating || isGeminiGenerating}
+                disabled={!prompt || isCodeGenerating || isGeminiGenerating || (generationService === 'gemini' && !isGeminiEnabled)}
+                title={generationService === 'gemini' && !isGeminiEnabled ? "Gemini API Key missing in .env" : "Generate Code"}
                 className={`flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-white shadow-lg shadow-purple-500/30 transition-all transform active:scale-95 ${
-                  !prompt ? 'bg-slate-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-500 hover:-translate-y-0.5'
+                  !prompt || (generationService === 'gemini' && !isGeminiEnabled) ? 'bg-slate-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-500 hover:-translate-y-0.5'
                 }`}
               >
                 {isGeminiGenerating ? (
@@ -553,7 +562,7 @@ export default function App() {
                         onChange={(e) => setGenerationService(e.target.value)}
                         className="w-full bg-slate-100 border border-slate-300 text-slate-600 rounded px-1 py-1 hover:bg-slate-200 cursor-pointer outline-none"
                     >
-                        <option value="gemini">Gemini</option>
+                        <option value="gemini" disabled={!isGeminiEnabled}>Gemini{!isGeminiEnabled ? " (No Key)" : ""}</option>
                         <option value="chatgpt" disabled>ChatGPT</option>
                         <option value="claude" disabled>Claude</option>
                     </select>
