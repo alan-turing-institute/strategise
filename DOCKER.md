@@ -14,7 +14,7 @@ Docker creates lightweight, isolated containers that package your entire applica
 2. **Verify Installation**
    ```bash
    docker --version
-   docker-compose --version
+   docker compose --version
    ```
 
 ## Quick Start (2 minutes)
@@ -24,7 +24,7 @@ Docker creates lightweight, isolated containers that package your entire applica
 cd /path/to/game
 
 # 2. Start everything with one command
-docker-compose up --build
+docker compose up --build
 
 # 3. Open your browser to http://localhost:5173
 ```
@@ -35,33 +35,31 @@ That's it! The app will be running with:
 
 ## Common Commands
 
-MAC USERS: Replace `docker-compose` in the commands below with `docker compose`.
-
 ### Start the containers (subsequent times - no rebuild)
 ```bash
-docker-compose up
+docker compose up
 ```
 
 ### Stop the containers
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ### View logs
 ```bash
-docker-compose logs -f web      # Frontend logs
-docker-compose logs -f api      # Backend logs
-docker-compose logs -f          # All logs
+docker compose logs -f web      # Frontend logs
+docker compose logs -f api      # Backend logs
+docker compose logs -f          # All logs
 ```
 
 ### Rebuild after dependency changes (new packages)
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 ### Remove containers and volumes
 ```bash
-docker-compose down -v
+docker compose down -v
 ```
 
 ## What Gets Installed?
@@ -83,7 +81,7 @@ The Docker containers automatically include:
 ### "Port already in use"
 Another app is using port 5173 or 5000
 ```bash
-# Change ports in docker-compose.yml:
+# Change ports in docker compose.yml:
 # ports:
 #   - "5174:5173"  # Use 5174 instead
 #   - "5001:5000"  # Use 5001 instead
@@ -99,8 +97,8 @@ docker system df
 ### "Containers won't start"
 ```bash
 # Clean up and rebuild
-docker-compose down -v
-docker-compose up --build
+docker compose down -v
+docker compose up --build
 ```
 
 ### "Code changes not showing"
