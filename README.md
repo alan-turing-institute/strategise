@@ -20,7 +20,7 @@ You can then move on to the [Application setup](#application-setup) section.
 Start by cloning the repo and changing to the root directory:
 
 ```bash
-git clone https://github.com/edwardchalstrey1/game.git # Or your fork
+git clone --recurse-submodules https://github.com/edwardchalstrey1/game.git # Or your fork
 cd game
 ```
 
