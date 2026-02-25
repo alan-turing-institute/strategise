@@ -17,6 +17,13 @@ Table of contents:
 To run the GameInterpreter pipeline with an LLM, choose your LLM service and follow one of configuration steps below.
 You can then move on to the [Application setup](#application-setup) section.
 
+Start by cloning the repo and changing to the root directory:
+
+```bash
+git clone https://github.com/edwardchalstrey1/game.git # Or your fork
+cd game
+```
+
 ## Configure your LLM service
 
 ### Gemini
@@ -57,29 +64,19 @@ Follow the steps below; there's also more info on Docker and truobleshooting in 
 
 **Steps:**
 
-1. Build and start the application:
-   - macOS:
-        ```bash
-        docker compose up --build
-        ```
-    - Linux
-        ```bash
-        docker-compose up --build
-        ```  
+1. Build and start the application (you can remove the build flag when doing this on subsequent runs):
+    ```bash
+    docker compose up --build
+    ```
 
 2. Open your browser to `http://localhost:5173`
 
     - The backend API runs on `http://localhost:5000` (automatic)
 
 3. To stop the containers:
-   - macOS:
-        ```bash
-        docker compose down
-        ```
-    - Linux
-        ```bash
-        docker-compose down
-        ```  
+    ```bash
+    docker compose down
+    ```
 
 **Notes:**
 - First build takes 2-3 minutes (installs LaTeX ~1.5GB)
@@ -90,19 +87,20 @@ Follow the steps below; there's also more info on Docker and truobleshooting in 
 ### Option 2: Manual Setup
 
 **Prerequisites:**
+- Install [Node and NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) if you don't have them already.
 - Run `npm i` to install the JS dependencies.
-- Install LaTeX
+- Install LaTeX e.g.
     - macOS:
         - Install [MacTEX](https://www.tug.org/mactex/mactex-download.html)
         - or `brew install --cask mactex`
     - Ubuntu:
         - `sudo apt-get install texlive-full`
-- Install "pdf2svg"
+- Install "pdf2svg" e.g.
     - macOS:
         - `brew install pdf2svg`
     - Ubuntu:
         - `sudo apt install pdf2svg`
-- Run the following for Python:
+- Install the packages for Python e.g. with Conda:
     - `conda create -n gameint python=3.14`
     - `conda activate gameint`
     - `pip install -r requirements.txt`
@@ -110,7 +108,7 @@ Follow the steps below; there's also more info on Docker and truobleshooting in 
 **Starting the application:**
 - In two separate terminal tabs:
     - Run `python server.py` to start the Flask backend.
-    - Run `npm run dev` to start the development server.
+    - Run `npm run dev` to start the React frontend.
 
 # Testing
 
@@ -119,14 +117,9 @@ You can try them locally like so:
 
 ## Running tests for Docker setup
 
-- macOS:
-    ```bash
-    docker compose run --rm api pytest
-    ```
-- Linux:
-    ```bash
-    docker-compose run --rm api pytest
-    ```
+```bash
+docker compose run --rm api pytest
+```
 
 ## Running tests for manual setup
 
