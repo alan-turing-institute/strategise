@@ -272,6 +272,11 @@ def generate_code():
     cleaned_code = clean_python_code(extracted_blocks[0])
     return jsonify({"code": cleaned_code})
 
+@app.route('/config', methods=['GET'])
+def get_config():
+    return jsonify({
+        "gemini_enabled": bool(os.environ.get("GEMINI_API_KEY"))
+    })
 
 @app.route('/games', methods=['GET'])
 def get_games():
