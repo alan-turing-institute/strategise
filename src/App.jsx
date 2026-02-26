@@ -212,9 +212,9 @@ export default function App() {
 
   useEffect(() => {
     if (showVizSettings) {
-      const centerX = (window.innerWidth - 320) / 2;
+      const leftX = 24; // Position on the left side of the screen
       const centerY = (window.innerHeight - 400) / 2;
-      setVizSettingsPos({ x: centerX, y: centerY });
+      setVizSettingsPos({ x: leftX, y: centerY });
     }
   }, [showVizSettings]);
 
@@ -382,39 +382,46 @@ export default function App() {
     }
   };
 
+  // This effect handles drawing/redrawing the tree.
+  // It runs when the visual is toggled on, or when settings change while it's visible.
+  useEffect(() => {
+    if (generatedCode) {
+      if (showVisual) {
+        setIsVisualLoading(true);
+        setVisualError(null);
+        fetch('http://127.0.0.1:5000/visualize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: generatedCode, ...vizSettings })
+        })
+        .then(res => {
+          if (!res.ok) {
+            return res.json().then(err => { 
+              const msg = err.details ? `${err.error}\n\n${err.details}` : err.error;
+              throw new Error(msg || 'Failed to generate visualization');
+            });
+          }
+          return res.json();
+        })
+        .then(data => {
+          if (data.svg) {
+            setVisualSvg(data.svg);
+          } else if (data.error) {
+            setVisualError(data.error);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          setVisualError(err.message || 'Failed to generate visualization');
+        })
+        .finally(() => setIsVisualLoading(false));
+      }
+    }
+  }, [showVisual, vizSettings, generatedCode]);
+
   // Toggle Visualization
   const handleVisualize = () => {
     setShowVisual(true);
-    setVisualError(null);
-    if (generatedCode) {
-      setIsVisualLoading(true);
-      fetch('http://127.0.0.1:5000/visualize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: generatedCode, ...vizSettings })
-      })
-      .then(res => {
-        if (!res.ok) {
-          return res.json().then(err => { 
-            const msg = err.details ? `${err.error}\n\n${err.details}` : err.error;
-            throw new Error(msg || 'Failed to generate visualization');
-          });
-        }
-        return res.json();
-      })
-      .then(data => {
-        if (data.svg) {
-          setVisualSvg(data.svg);
-        } else if (data.error) {
-          setVisualError(data.error);
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        setVisualError(err.message || 'Failed to generate visualization');
-      })
-      .finally(() => setIsVisualLoading(false));
-    }
   };
 
   // Mock API Call: Compute Nash
