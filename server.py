@@ -152,6 +152,13 @@ def find_output_directory(game_id, output_base_path):
     
     return None
 
+# Games to exclude from the UI
+HIDDEN_GAMES = {
+    'Absent-Minded_Driver',
+    'Kuhn_Poker',
+    'An_Imperfect_Recall_Game',
+}
+
 def get_dataset_games():
     """
     Load games from GameInterpreter/Dataset and their corresponding Python code
@@ -180,6 +187,10 @@ def get_dataset_games():
             # Get game filename without extension
             filename = os.path.basename(desc_file)
             game_id = os.path.splitext(filename)[0]
+
+            # Skip hidden games
+            if game_id in HIDDEN_GAMES:
+                continue
             
             # Read description
             with open(desc_file, 'r') as f:
@@ -292,9 +303,9 @@ def get_visualization_settings():
     return jsonify({
         "shared_terminal_depth": False,
         "scale_factor": 1.0,
-        "level_scaling": 1.0,
+        "level_scaling": 1.5,
         "sublevel_scaling": 1.0,
-        "width_scaling": 1.0,
+        "width_scaling": 1.5,
         "edge_thickness": 1.0,
         "action_label_position": 0.5,
         "color_scheme": "gambit"

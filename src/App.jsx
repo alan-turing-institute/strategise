@@ -80,9 +80,9 @@ export default function App() {
   const [vizSettings, setVizSettings] = useState({
     shared_terminal_depth: false,
     scale_factor: 1.0,
-    level_scaling: 1.0,
+    level_scaling: 1.5,
     sublevel_scaling: 1.0,
-    width_scaling: 1.0,
+    width_scaling: 1.5,
     edge_thickness: 1.0,
     action_label_position: 0.5,
     color_scheme: "gambit"
