@@ -16,9 +16,6 @@ Table of contents:
 
 # Running the app locally
 
-To run the GameInterpreter pipeline with an LLM, choose your LLM service and follow one of configuration steps below.
-You can then move on to the [Application setup](#application-setup) section.
-
 Start by cloning the repo and changing to the root directory:
 
 ```bash
