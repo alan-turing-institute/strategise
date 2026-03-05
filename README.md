@@ -1,13 +1,15 @@
-# game
+# Strategise
 
-Tool for translation of game theory natural language descriptions to code and visuals.
+- Users submit strategies for a selection of games, i.e. with what probability players should take actions at each game node.
+- The strategy profiles get submitted and played against one another.
+- There is a leaderboard for each game.
 
-This is a code bundle for GameInterpreter Webapp.
+Built from a fork of https://github.com/edwardchalstrey1/game 
 
 Table of contents:
 - [Running the app locally](#running-the-app-locally)
-    - [Configure your LLM service](#configure-your-llm-service)
-    - [Application setup](#application-setup)
+    <!-- - [Configure your LLM service](#configure-your-llm-service) -->
+    <!-- - [Application setup](#application-setup) -->
 - [Example Games Data Source](#example-games-data-source)
 - [Testing](#testing)
     
@@ -20,11 +22,11 @@ You can then move on to the [Application setup](#application-setup) section.
 Start by cloning the repo and changing to the root directory:
 
 ```bash
-git clone --recurse-submodules https://github.com/edwardchalstrey1/game.git # Or your fork
-cd game
+git clone --recurse-submodules https://github.com/alan-turing-institute/strategise.git
+cd strategise
 ```
 
-## Configure your LLM service
+<!-- ## Configure your LLM service
 
 ### Gemini
 
@@ -45,10 +47,10 @@ cd game
 
 ### Local models
 
-*NOT IMPLEMENTED*
+*NOT IMPLEMENTED* -->
 
-Application setup
------------------
+<!-- Application setup
+----------------- -->
 
 To set up the application, either use Docker, or install the dependencides manually.
 
